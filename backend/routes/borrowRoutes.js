@@ -1,9 +1,11 @@
 import express from "express";
-import { getBorrowSummary, getActiveBorrows } from "../controllers/borrowController.js";
+import { getAllBorrows, getBorrow, createBorrow, updateBorrow } from "../controllers/borrowController.js";
 
 const router = express.Router();
 
-router.get("/summary", getBorrowSummary);
-router.get("/active", getActiveBorrows);
+router.get("/getAll", getAllBorrows);
+router.get("/getByID/:id", getBorrow);
+router.post("/create", createBorrow);
+router.put("/update/:id", updateBorrow);
 
 export default router;
