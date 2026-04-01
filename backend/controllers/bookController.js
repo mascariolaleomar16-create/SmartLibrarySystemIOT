@@ -29,6 +29,7 @@ export const getAllBooks = async (req, res) => {
 
 
 /* GET SINGLE BOOK */
+//this should be getby RFID
 export const getBook = async (req, res) => {
 
   try {
@@ -60,7 +61,6 @@ export const getBook = async (req, res) => {
   }
 };
 
-
 /* CREATE BOOK */
 export const createBook = async (req, res) => {
 
@@ -75,9 +75,11 @@ export const createBook = async (req, res) => {
       });
     }
 
+    //It shoudnt generate any rfid because you get that from scanning
     let finalRFID = rfidTag;
 
     /* Generate RFID if missing */
+    
     if (!finalRFID) {
 
       finalRFID = `RFID-${Date.now().toString(36)}-${crypto
@@ -184,6 +186,7 @@ export const updateBook = async (req, res) => {
 
 
 /* DELETE BOOK */
+//the book should not get deleted but instead marked as deleted
 export const deleteBook = async (req, res) => {
 
   try {

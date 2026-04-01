@@ -54,3 +54,7 @@ export const handleScan = async (req, res) => {
     res.status(500).json({ error: "Scan failed" });
   }
 };
+
+export default {
+  handleScan
+}

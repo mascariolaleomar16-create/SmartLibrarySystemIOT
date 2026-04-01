@@ -63,6 +63,7 @@ export const getBorrow = async (req, res) => {
 
 
 /* CREATE BORROW */
+//The is were the books should be scanned and update the availability
 export const createBorrow = async (req, res) => {
   try {
 
@@ -103,6 +104,7 @@ export const createBorrow = async (req, res) => {
 
 
 /* UPDATE BORROW */
+//THis should be changed to returnBook or something, The books still nreeds to be scanned to update the availability
 export const updateBorrow = async (req, res) => {
   try {
 
