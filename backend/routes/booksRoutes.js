@@ -1,7 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 
-import {getAllBooks, getBook, createBook} from "../controllers/bookController.js";
+import {getAllBooks, getBook, createBook, updateBook, deleteBook} from "../controllers/bookController.js";
 
 const router = express.Router();
 

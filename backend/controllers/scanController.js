@@ -1,5 +1,5 @@
 import { Book } from "../models/Book.js";
-import Borrow from "../models/Borrow.js";
+import { Borrow } from "../models/Borrow.js";
 
 export const handleScan = async (req, res) => {
   try {
