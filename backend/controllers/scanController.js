@@ -1,5 +1,6 @@
 import { Book } from "../models/Book.js";
 import { Borrow } from "../models/Borrow.js";
+import { startScanning, stopScanning } from "../middleware/rfidScanning.js";
 
 export const handleScan = async (req, res) => {
   try {
@@ -55,6 +56,24 @@ export const handleScan = async (req, res) => {
   }
 };
 
+export const startScan = (req, res) => {
+  startScanning();
+  return res.json({
+    success: true,
+    message: "RFID scanning started"
+  });
+};
+
+export const stopScan = (req, res) => {
+  stopScanning();
+  return res.json({
+    success: true,
+    message: "RFID scanning stopped"
+  });
+};
+
 export default {
-  handleScan
+  handleScan,
+  startScan,
+  stopScan
 }
