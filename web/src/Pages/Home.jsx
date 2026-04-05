@@ -5,48 +5,123 @@ export default function LibraryHomePage() {
   return (
     <div className="min-h-screen bg-[#fefae0] text-gray-800">
 
-      {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center text-center py-20 px-6 bg-[#e9edc9]">
-        <h2 className="text-4xl font-bold mb-4">Welcome to the Smart Library</h2>
-        <p className="max-w-xl mb-6 text-lg">
-          Easily borrow and return books using RFID technology. Fast, secure, and convenient for students and admins.
+      {/* HERO SECTION */}
+      <section className="relative bg-[#e9edc9] py-24 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 items-center gap-10">
+          {/* TEXT */}
+          <div className="text-center md:text-left">
+            <h1 className="text-5xl font-extrabold mb-6 leading-tight">
+              Smart Library <span className="text-[#d4a373]">BookFlow</span>
+            </h1>
+            <p className="text-lg mb-8 text-gray-700">
+              Experience seamless book borrowing with RFID-powered automation. Fast, secure, and built for modern libraries.
+            </p>
+
+            <div className="flex justify-center md:justify-start gap-4">
+              <Link to="/register">
+                <button className="bg-[#d4a373] text-white px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition">
+                  Get Started
+                </button>
+              </Link>
+
+              <Link to="/login">
+                <button className="border-2 border-[#d4a373] text-[#d4a373] px-8 py-3 rounded-2xl hover:bg-[#d4a373] hover:text-white transition">
+                  Login
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* IMAGE */}
+          <div className="flex justify-center">
+            <img
+              src="/images/library-hero.png"
+              alt="Library Illustration"
+              className="w-full max-w-md drop-shadow-xl"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="py-20 px-8 max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-12">Core Features</h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              title: "RFID Automation",
+              desc: "Instantly scan books for borrowing and returning using RFID technology.",
+              img: "/images/rfid.png",
+            },
+            {
+              title: "Smart Tracking",
+              desc: "Track borrowed books, due dates, and penalties automatically.",
+              img: "/images/tracking.png",
+            },
+            {
+              title: "User Management",
+              desc: "Admins can manage users, monitor activity, and control access.",
+              img: "/images/users.png",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="bg-[#e9edc9] p-8 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition text-center"
+            >
+              <img
+                src={item.img}
+                alt={item.title}
+                className="w-20 h-20 mx-auto mb-4"
+              />
+              <h3 className="text-xl font-semibold mb-3 text-[#d4a373]">
+                {item.title}
+              </h3>
+              <p className="text-gray-700">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className="bg-[#e9edc9] py-20 px-8">
+        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto text-center">
+          {[
+            { step: "Register your account", img: "/images/register.png" },
+            { step: "Scan book via RFID", img: "/images/scan.png" },
+            { step: "Track & return easily", img: "/images/return.png" },
+          ].map((item, i) => (
+            <div key={i} className="p-6">
+              <img
+                src={item.img}
+                alt={item.step}
+                className="w-24 h-24 mx-auto mb-4"
+              />
+              <div className="w-10 h-10 mx-auto mb-3 flex items-center justify-center rounded-full bg-[#d4a373] text-white font-bold">
+                {i + 1}
+              </div>
+              <p className="font-medium">{item.step}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA SECTION */}
+      <section className="py-20 text-center px-6">
+        <h2 className="text-3xl font-bold mb-4">Start Using BookFlow Today</h2>
+        <p className="mb-6 text-gray-600">
+          Join now and simplify your library experience.
         </p>
-        
+
         <Link to="/register">
-          <button className="bg-[#d4a373] text-white px-6 py-3 rounded-2xl shadow hover:opacity-90">
-            Get Started
+          <button className="bg-[#d4a373] text-white px-10 py-4 rounded-2xl shadow-lg hover:scale-105 transition">
+            Create Account
           </button>
         </Link>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-8 grid md:grid-cols-3 gap-8">
-        <div className="bg-[#e9edc9] p-6 rounded-2xl shadow">
-          <h3 className="text-xl font-semibold mb-2">RFID Scanning</h3>
-          <p>
-            Borrow and return books instantly using RFID technology integrated with Arduino.
-          </p>
-        </div>
-
-        <div className="bg-[#e9edc9] p-6 rounded-2xl shadow">
-          <h3 className="text-xl font-semibold mb-2">User Management</h3>
-          <p>
-            Admins can manage students, track borrowing history, and monitor activity.
-          </p>
-        </div>
-
-        <div className="bg-[#e9edc9] p-6 rounded-2xl shadow">
-          <h3 className="text-xl font-semibold mb-2">Due & Notifications</h3>
-          <p>
-            Automatic due dates, penalties, and notifications for late returns.
-          </p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-[#d4a373] text-white text-center py-4 mt-10">
-        <p>© 2026 Smart Library System | Built with MERN & IoT</p>
-      </footer>
     </div>
   );
 }
