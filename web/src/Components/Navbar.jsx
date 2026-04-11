@@ -1,32 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation  } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
-  const location = useLocation();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  // Check if user is logged in (cookie-based)
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/auth/me`, {
-        withCredentials: true,
-      });
-
-      setUser(res.data.user);
-    } catch (err) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, [location]);
+  // 🔥 GLOBAL AUTH (no local fetch needed)
+  const { user, loading, setUser, fetchUser } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -35,8 +17,10 @@ export default function Navbar() {
         {},
         { withCredentials: true }
       );
-
+      await fetchUser();
+      // 🔥 instantly clear global auth state
       setUser(null);
+
       navigate("/login");
     } catch (err) {
       console.error("Logout failed", err);

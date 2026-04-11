@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { fetchUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,8 @@ export default function LoginPage() {
         `${API_URL}/auth/login`,
         { email, password }
       );
-
+      await fetchUser();
+      
       navigate("/dashboard");
 
     } catch (err) {
