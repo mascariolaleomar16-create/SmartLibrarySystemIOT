@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookie } from "../middleware/generateTokenAndSetCookie.js";
 import { User } from "../models/User.js";
+import jwt from "jsonwebtoken";
 
 const validTokens = new Set();
 
@@ -178,10 +179,31 @@ export const register = async (req, res) => {
     }
 };
 
+export const me = async (req, res) => {
+    try {
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).json({ message: "Not authenticated" });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ user });
+
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid token" });
+  }
+}
+
 
 export default {
     login,
     verify,
     register,
-    logout
+    logout,
+    me
 };

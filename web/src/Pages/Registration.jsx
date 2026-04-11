@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Registration() {
+  const navigate = useNavigate();
+
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -19,7 +27,6 @@ export default function Registration() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // handle nested address fields
     if (name in form.address) {
       setForm((prev) => ({
         ...prev,
@@ -36,151 +43,131 @@ export default function Registration() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setError("");
+
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
-    console.log("Register Data:", form);
-    alert("Register submitted (connect to backend later)");
+    setLoading(true);
+
+    try {
+      // Remove confirmPassword before sending
+      const { confirmPassword, ...payload } = form;
+
+      await axios.post(
+        `${API_URL}/auth/register`,
+        payload
+      );
+
+      alert("Registration successful!");
+      navigate("/login");
+
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.message || "Registration failed. Try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fefae0] py-10">
       <div className="w-full max-w-2xl bg-[#e9edc9] p-8 rounded-2xl shadow-lg">
+        
         <h1 className="text-3xl font-bold text-center mb-6 text-[#d4a373]">
           Smart Library Register
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
           {/* Username */}
-          <div>
-            <label className="block mb-1 font-medium">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-              required
-            />
-          </div>
+          <input
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            placeholder="Username"
+            className="w-full p-3 rounded-lg border"
+            required
+          />
 
           {/* Email */}
-          <div>
-            <label className="block mb-1 font-medium">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-              required
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email"
+            className="w-full p-3 rounded-lg border"
+            required
+          />
 
           {/* Password */}
-          <div>
-            <label className="block mb-1 font-medium">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-              required
-            />
-          </div>
+          <input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Password"
+            className="w-full p-3 rounded-lg border"
+            required
+          />
 
           {/* Confirm Password */}
-          <div>
-            <label className="block mb-1 font-medium">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
-              required
-            />
+          <input
+            type="password"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm Password"
+            className="w-full p-3 rounded-lg border"
+            required
+          />
+
+          {/* Address */}
+          <h2 className="text-lg font-semibold text-[#d4a373] mt-4">
+            Address
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-3">
+            <input name="street" placeholder="Street" value={form.address.street} onChange={handleChange} className="p-3 border rounded" required />
+            <input name="city" placeholder="City" value={form.address.city} onChange={handleChange} className="p-3 border rounded" required />
+            <input name="state" placeholder="State" value={form.address.state} onChange={handleChange} className="p-3 border rounded" required />
+            <input name="postalCode" placeholder="Postal Code" value={form.address.postalCode} onChange={handleChange} className="p-3 border rounded" required />
+            <input name="country" placeholder="Country" value={form.address.country} onChange={handleChange} className="p-3 border rounded md:col-span-2" required />
           </div>
 
-          {/* Address Section */}
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-3 text-[#d4a373]">Address</h2>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="street"
-                placeholder="Street"
-                value={form.address.street}
-                onChange={handleChange}
-                className="w-full p-3 rounded-lg border border-gray-300"
-                required
-              />
-
-              <input
-                type="text"
-                name="city"
-                placeholder="City"
-                value={form.address.city}
-                onChange={handleChange}
-                className="w-full p-3 rounded-lg border border-gray-300"
-                required
-              />
-
-              <input
-                type="text"
-                name="state"
-                placeholder="State"
-                value={form.address.state}
-                onChange={handleChange}
-                className="w-full p-3 rounded-lg border border-gray-300"
-                required
-              />
-
-              <input
-                type="text"
-                name="postalCode"
-                placeholder="Postal Code"
-                value={form.address.postalCode}
-                onChange={handleChange}
-                className="w-full p-3 rounded-lg border border-gray-300"
-                required
-              />
-
-              <input
-                type="text"
-                name="country"
-                placeholder="Country"
-                value={form.address.country}
-                onChange={handleChange}
-                className="w-full p-3 rounded-lg border border-gray-300 md:col-span-2"
-                required
-              />
-            </div>
-          </div>
+          {/* Error */}
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-[#d4a373] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            disabled={loading}
+            className="w-full bg-[#d4a373] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
+
         </form>
 
-        {/* Login Link */}
         <p className="text-center mt-6 text-sm">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className="text-[#d4a373] font-semibold hover:underline">
             Login
           </Link>
         </p>
+
       </div>
     </div>
   );

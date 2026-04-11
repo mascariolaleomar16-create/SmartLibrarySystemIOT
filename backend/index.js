@@ -10,6 +10,7 @@ import booksRoutes from "./routes/booksRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import borrowRoutes from "./routes/borrowRoutes.js";
 import { startRFIDScanner } from "./middleware/rfidScanning.js";
+import cookieParser from "cookie-parser";
 
 import http from "http";
 import { initSocket } from "./middleware/socket.js";
@@ -24,7 +25,11 @@ const backend_port = process.env.BACKEND_PORT || 5000;
 initSocket(server);
 
 /* ================= MIDDLEWARE ================= */
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  origin: process.env.WEB_URL, // your React app
+  credentials: true
+}));
 app.use(express.json());
 
 /* ================= ROUTES ================= */

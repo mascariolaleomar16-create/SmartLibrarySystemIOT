@@ -6,6 +6,7 @@ import RFIDTest from './Pages/RFIDTest.jsx';
 import Registration from './Pages/Registration.jsx';
 import Navbar from './Components/Navbar.jsx';
 import Footer from './Components/Footer.jsx';
+import Dashboard from './Pages/Dashboard.jsx';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/rfidtest" element={<RFIDTest />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
       <Footer />
     </BrowserRouter>
