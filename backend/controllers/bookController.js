@@ -31,33 +31,32 @@ export const getAllBooks = async (req, res) => {
 /* GET SINGLE BOOK */
 //this should be getby RFID
 export const getBook = async (req, res) => {
-
   try {
-
-    const book = await Book.findById(req.params.id)
-      .populate("borrowedBy", "username fullName");
+    const rfidTag = req.params.rfidTag;
+    console.log(rfidTag);
+    
+    const book = await Book.findOne({ rfidTag })
+      .populate("borrowedBy", "username fullName email");
 
     if (!book) {
       return res.status(404).json({
-        success:false,
-        message:"Book not found"
+        success: false,
+        message: "Book not found"
       });
     }
 
     return res.status(200).json({
-      success:true,
+      success: true,
       book
     });
 
   } catch (err) {
-
     console.error("Error fetching book:", err);
 
     return res.status(500).json({
-      success:false,
-      message:"Failed to fetch book"
+      success: false,
+      message: "Failed to fetch book"
     });
-
   }
 };
 

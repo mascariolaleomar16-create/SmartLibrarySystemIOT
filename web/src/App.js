@@ -2,14 +2,20 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Pages/Login.jsx";
 import Home from "./Pages/Home.jsx";
-import RFIDTest from './Pages/RFIDTest.jsx';
+import RFIDScan from './Pages/RFIDScan.jsx';
 import Registration from './Pages/Registration.jsx';
 import Navbar from './Components/Navbar.jsx';
 import Footer from './Components/Footer.jsx';
-import Dashboard from './Pages/Dashboard.jsx';
+import DashboardLayout from './Pages/DashboardLayout.jsx';
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from './Components/ProtectedRouteComponent.jsx';
 import PublicRoute from './Components/PublicRoute.jsx';
+import DashboardHome from './Pages/DashboardHome.jsx';
+import BorrowedBook from './Pages/BorrowedBook.jsx';
+import AvailableBooks from './Pages/AvailableBooks.jsx';
+import SearchLibrary from './Pages/SearchLibrary.jsx';
+import Notifications from './Pages/Notifications.jsx';
+
 
 
 function App() {
@@ -22,17 +28,24 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Registration /></PublicRoute>} />
-          <Route path="/rfidtest" element={<RFIDTest />} />
 
           {/* 🔐 PROTECTED ROUTE */}
           <Route
-            path="/dashboard"
+            path="/dashboard/*"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <DashboardLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<DashboardHome />} />
+            <Route path="rfidscan" element={<RFIDScan />} />
+            <Route path="borrowed-books" element={<BorrowedBook />} />
+            <Route path="available" element={<AvailableBooks />} />
+            <Route path="search" element={<SearchLibrary />} />
+            <Route path="notifications" element={<Notifications />} />
+
+          </Route>
 
         </Routes>
 

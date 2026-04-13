@@ -34,7 +34,7 @@ export default function Navbar() {
         {/* LEFT: Logo */}
         <div className="flex items-center gap-3">
           <img
-            src="BF.ico"
+            src="/BF.ico"
             alt="BookFlow Logo"
             className="h-10 w-10 object-contain"
           />

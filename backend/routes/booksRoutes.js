@@ -6,7 +6,7 @@ import {getAllBooks, getBook, createBook, updateBook, deleteBook} from "../contr
 const router = express.Router();
 
 router.get("/getAll", getAllBooks);
-router.get("/getByID/:id", getBook);
+router.get("/getByRFID/:rfidTag", getBook);
 
 router.post("/create", createBook);
 router.put("/update/:id", updateBook);
