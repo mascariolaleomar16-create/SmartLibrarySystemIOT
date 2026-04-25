@@ -50,14 +50,7 @@ const bookSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-
-    // ----------- CLOUDINARY IMAGE FIELDS -----------
-    image: {
-      type: String,
-      default:
-        "/images/default-book.jpg",
-    },
-
+    
     image: {
         url: { 
           type: String,
