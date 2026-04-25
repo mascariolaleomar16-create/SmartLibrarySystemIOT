@@ -15,16 +15,13 @@ export default function Sidebar() {
         <NavLink to="/dashboard/rfidscan" className={linkClass}>
             RFID Scanner
         </NavLink>
+
+        <NavLink to="/dashboard/catalogue" className={linkClass}>
+            Library Catalogue
+        </NavLink>
+
         <NavLink to="/dashboard/borrowed-books" className={linkClass}>
             Borrowed Books
-        </NavLink>
-
-        <NavLink to="/dashboard/available" className={linkClass}>
-            Available Books
-        </NavLink>
-
-        <NavLink to="/dashboard/search" className={linkClass}>
-            Search Library
         </NavLink>
 
         <NavLink to="/dashboard/notifications" className={linkClass}>

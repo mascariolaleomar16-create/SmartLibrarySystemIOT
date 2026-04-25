@@ -1,8 +1,9 @@
 import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
-import { io } from "../server.js"; // adjust path if needed
+import { io } from "../server.js";
 
 //run using npm  middleware\rfidTest.js
+//this is for debugging only
 
 const port = new SerialPort({
     path: "COM4",

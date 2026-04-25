@@ -24,10 +24,12 @@ export default function Registration() {
     },
   });
 
+  const addressFields = ["street", "city", "state", "postalCode", "country"];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name in form.address) {
+    if (addressFields.includes(name)) {
       setForm((prev) => ({
         ...prev,
         address: {
@@ -56,17 +58,24 @@ export default function Registration() {
     setLoading(true);
 
     try {
-      // Remove confirmPassword before sending
-      const { confirmPassword, ...payload } = form;
+      const { confirmPassword, ...rest } = form;
 
-      await axios.post(
-        `${API_URL}/auth/register`,
-        payload
-      );
+      // ✅ FIX: ensure backend-required field exists
+      const payload = {
+        ...rest,
+        fullName: rest.username, // 👈 auto-generate fullName
+      };
+
+      console.log("FINAL PAYLOAD:", payload);
+
+      await axios.post(`${API_URL}/auth/register`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       alert("Registration successful!");
       navigate("/login");
-
     } catch (err) {
       console.error(err);
 
@@ -81,7 +90,6 @@ export default function Registration() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fefae0] py-10">
       <div className="w-full max-w-2xl bg-[#e9edc9] p-8 rounded-2xl shadow-lg">
-        
         <h1 className="text-3xl font-bold text-center mb-6 text-[#d4a373]">
           Smart Library Register
         </h1>
@@ -167,7 +175,6 @@ export default function Registration() {
             Login
           </Link>
         </p>
-
       </div>
     </div>
   );

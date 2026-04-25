@@ -12,9 +12,8 @@ import ProtectedRoute from './Components/ProtectedRouteComponent.jsx';
 import PublicRoute from './Components/PublicRoute.jsx';
 import DashboardHome from './Pages/DashboardHome.jsx';
 import BorrowedBook from './Pages/BorrowedBook.jsx';
-import AvailableBooks from './Pages/AvailableBooks.jsx';
-import SearchLibrary from './Pages/SearchLibrary.jsx';
 import Notifications from './Pages/Notifications.jsx';
+import LibraryCatalogue from './Pages/LibraryCatalogue.jsx';
 
 
 
@@ -41,8 +40,7 @@ function App() {
             <Route index element={<DashboardHome />} />
             <Route path="rfidscan" element={<RFIDScan />} />
             <Route path="borrowed-books" element={<BorrowedBook />} />
-            <Route path="available" element={<AvailableBooks />} />
-            <Route path="search" element={<SearchLibrary />} />
+            <Route path="catalogue" element={<LibraryCatalogue />} />
             <Route path="notifications" element={<Notifications />} />
 
           </Route>

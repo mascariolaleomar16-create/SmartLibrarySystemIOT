@@ -31,6 +31,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 /* ================= ROUTES ================= */
 app.use("/api/monitor", monitorRoutes);

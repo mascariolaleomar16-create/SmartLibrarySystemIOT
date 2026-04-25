@@ -28,6 +28,17 @@ export const getAllBorrows = async (req, res) => {
   }
 };
 
+//Get Borrowes by user ID
+
+//Get Pending Returns (aka Overdue books)
+
+//Get Due Soon
+
+/* yes the books are on a 3 day limit, and there 
+are penalties and temporary bans when late returns, 
+also notification are in app only but i havent implemented 
+that yet.. */
+
 
 /* GET SINGLE BORROW */
 export const getBorrow = async (req, res) => {
@@ -105,6 +116,9 @@ export const createBorrow = async (req, res) => {
 
 /* UPDATE BORROW */
 //THis should be changed to returnBook or something, The books still nreeds to be scanned to update the availability
+// Need siya i update ang book status mismo
+// Also i rename ni as return Book
+
 export const updateBorrow = async (req, res) => {
   try {
 
