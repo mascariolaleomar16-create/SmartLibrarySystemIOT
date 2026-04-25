@@ -67,10 +67,11 @@ export const getAllBooks = async (req, res) => {
 ========================= */
 export const getBookByRFID = async (req, res) => {
   try {
+    const rfidTag = req.params.rfidTag?.trim();
 
-    const rfidTag = req.params.rfidTag;
-
-    const book = await Book.findOne({ rfidTag, isDeleted: false });
+    const book = await Book.findOne({
+      rfidTag
+    });
 
     if (!book) {
       return res.status(404).json({
@@ -79,23 +80,12 @@ export const getBookByRFID = async (req, res) => {
       });
     }
 
-    const borrow = await Borrow.findOne({
-      book: book._id,
-      returned: false
-    }).populate("user", "username fullName email");
-
     return res.status(200).json({
       success: true,
-      book: {
-        ...book.toObject(),
-        isBorrowed: !!borrow,
-        borrowedBy: borrow ? borrow.user : null,
-        dueDate: borrow ? borrow.dueDate : null
-      }
+      book
     });
 
   } catch (err) {
-
     console.error("Error fetching book:", err);
 
     return res.status(500).json({

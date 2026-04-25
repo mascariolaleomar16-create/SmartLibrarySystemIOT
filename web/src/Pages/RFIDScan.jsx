@@ -21,13 +21,15 @@ export default function RFIDScan() {
 
   useEffect(() => {
     socket.on("rfid-scan", async (data) => {
-      setUid(data);
+      const cleanedRFID = data?.toString().trim(); // 🔥 FIX
+
+      setUid(cleanedRFID);
       setLoading(true);
       setBook(null);
 
       try {
         const res = await axios.get(
-          `${API_URL}/books/getByRFID/${data}`
+          `${API_URL}/books/getByRFID/${cleanedRFID}`
         );
 
         if (res.data.success) {
