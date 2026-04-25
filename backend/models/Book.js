@@ -39,18 +39,10 @@ const bookSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-
-    borrowedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
+    shelfNumber: {
+      type: String,
+      default: "Unassigned",
     },
-
-    dueDate: {
-      type: Date,
-      default: null,
-    },
-    
     image: {
         url: { 
           type: String,
