@@ -10,7 +10,7 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 
-const socket = io("http://localhost:5050");
+const socket = io(process.env.REACT_APP_SOCKET_URL);
 const API_URL = process.env.REACT_APP_API_URL;
 
 export default function RFIDScan() {
