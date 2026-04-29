@@ -2,9 +2,25 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+/* ✅ MOVE THIS OUTSIDE COMPONENT */
+const InputField = ({ label, name, type = "text", required = false, value, onChange }) => (
+  <div>
+    <label className="block text-sm font-medium mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full p-3 rounded-lg border"
+      required={required}
+    />
+  </div>
+);
+
 export default function Registration() {
   const navigate = useNavigate();
-
   const API_URL = process.env.REACT_APP_API_URL;
 
   const [loading, setLoading] = useState(false);
@@ -12,6 +28,7 @@ export default function Registration() {
 
   const [form, setForm] = useState({
     username: "",
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -47,7 +64,6 @@ export default function Registration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError("");
 
     if (form.password !== form.confirmPassword) {
@@ -60,28 +76,15 @@ export default function Registration() {
     try {
       const { confirmPassword, ...rest } = form;
 
-      // ✅ FIX: ensure backend-required field exists
-      const payload = {
-        ...rest,
-        fullName: rest.username, // 👈 auto-generate fullName
-      };
-
-      console.log("FINAL PAYLOAD:", payload);
-
-      await axios.post(`${API_URL}/auth/register`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      await axios.post(`${API_URL}/auth/register`, rest, {
+        headers: { "Content-Type": "application/json" },
       });
 
-      alert("Registration successful!");
+      alert("Registration successful");
       navigate("/login");
     } catch (err) {
       console.error(err);
-
-      setError(
-        err.response?.data?.message || "Registration failed. Try again."
-      );
+      setError(err.response?.data?.message || "Registration failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -96,69 +99,71 @@ export default function Registration() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Username */}
-          <input
-            type="text"
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Full Name <span className="text-gray-500">(optional)</span>
+            </label>
+            <input
+              type="text"
+              name="fullName"
+              value={form.fullName}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg border"
+            />
+          </div>
+
+          <InputField
+            label="Username"
             name="username"
             value={form.username}
-            onChange={handleChange}
-            placeholder="Username"
-            className="w-full p-3 rounded-lg border"
             required
+            onChange={handleChange}
           />
 
-          {/* Email */}
-          <input
-            type="email"
+          <InputField
+            label="Email"
             name="email"
+            type="email"
             value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className="w-full p-3 rounded-lg border"
             required
+            onChange={handleChange}
           />
 
-          {/* Password */}
-          <input
-            type="password"
+          <InputField
+            label="Password"
             name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="w-full p-3 rounded-lg border"
-            required
-          />
-
-          {/* Confirm Password */}
-          <input
             type="password"
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            placeholder="Confirm Password"
-            className="w-full p-3 rounded-lg border"
+            value={form.password}
             required
+            onChange={handleChange}
           />
 
-          {/* Address */}
+          <InputField
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            value={form.confirmPassword}
+            required
+            onChange={handleChange}
+          />
+
           <h2 className="text-lg font-semibold text-[#d4a373] mt-4">
             Address
           </h2>
 
           <div className="grid md:grid-cols-2 gap-3">
-            <input name="street" placeholder="Street" value={form.address.street} onChange={handleChange} className="p-3 border rounded" required />
-            <input name="city" placeholder="City" value={form.address.city} onChange={handleChange} className="p-3 border rounded" required />
-            <input name="state" placeholder="State" value={form.address.state} onChange={handleChange} className="p-3 border rounded" required />
-            <input name="postalCode" placeholder="Postal Code" value={form.address.postalCode} onChange={handleChange} className="p-3 border rounded" required />
-            <input name="country" placeholder="Country" value={form.address.country} onChange={handleChange} className="p-3 border rounded md:col-span-2" required />
+            <InputField label="Street" name="street" value={form.address.street} required onChange={handleChange} />
+            <InputField label="City" name="city" value={form.address.city} required onChange={handleChange} />
+            <InputField label="State" name="state" value={form.address.state} onChange={handleChange} />
+            <InputField label="Postal Code" name="postalCode" value={form.address.postalCode} onChange={handleChange} />
+
+            <div className="md:col-span-2">
+              <InputField label="Country" name="country" value={form.address.country} required onChange={handleChange} />
+            </div>
           </div>
 
-          {/* Error */}
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

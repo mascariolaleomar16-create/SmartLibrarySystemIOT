@@ -94,10 +94,10 @@ export const register = async (req, res) => {
     try {
         const { username, fullName, email, password, address } = req.body;
 
-        /* Required fields */
-        if (!username || !fullName || !email || !password) {
+        /* Required fields (removed fullName) */
+        if (!username || !email || !password) {
             return res.status(400).json({
-                message: "username, fullName, email and password are required"
+                message: "username, email and password are required"
             });
         }
 
@@ -133,10 +133,15 @@ export const register = async (req, res) => {
         /* Hash password */
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        /* Set default fullName = username if not provided */
+        const finalFullName = fullName && fullName.trim() !== "" 
+            ? fullName 
+            : username;
+
         /* Create user */
         const newUser = new User({
             username,
-            fullName,
+            fullName: finalFullName,
             email: email.toLowerCase(),
             password: hashedPassword,
             address: {
