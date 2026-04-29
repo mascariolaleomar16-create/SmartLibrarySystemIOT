@@ -6,9 +6,9 @@ import {
   getOverdueBorrows,
   getDueSoonBorrows,
   createBorrow,
-  returnBook,
   getUserOverdueBorrows,
-  getUserDueSoonBorrows
+  getUserDueSoonBorrows,
+  returnBookByBookId,
 } from "../controllers/borrowController.js";
 
 const router = express.Router();
@@ -17,7 +17,7 @@ const router = express.Router();
 router.get("/", getAllBorrows);
 router.get("/:id", getBorrow);
 router.post("/", createBorrow);
-router.put("/:id/return", returnBook);
+router.put("/return-by-book/:bookId", returnBookByBookId);
 
 
 router.get("/user/:userId", getUserBorrows);

@@ -64,6 +64,10 @@ export default function Sidebar() {
             Admin
           </p>
 
+          <NavLink to="/dashboard/borrow-return-manager" className={linkClass}>
+            Borrow Return Manager
+          </NavLink>
+
           <NavLink to="/dashboard/add-book" className={linkClass}>
             Add Book
           </NavLink>
@@ -76,8 +80,8 @@ export default function Sidebar() {
             Manage Users
           </NavLink>
 
-          <NavLink to="/dashboard/system-logs" className={linkClass}>
-            System Logs
+          <NavLink to="/dashboard/penalty-history" className={linkClass}>
+            Penalty History
           </NavLink>
         </>
       )}

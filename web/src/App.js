@@ -17,9 +17,9 @@ import LibraryCatalogue from './Pages/LibraryCatalogue.jsx';
 import AddBook from './Pages/AddBook.jsx';
 import Statistics from './Pages/Statistics.jsx';
 import ManageUsers from './Pages/ManageUsers.jsx';
-import SystemLogs from './Pages/SystemLogs.jsx';
 import AdminRoute from './Components/AdminRoute.jsx';
-
+import PenaltyHistory from './Pages/PenaltyHistory.jsx';
+import BorrowReturnManager from './Pages/BorrowReturnManager.jsx';
 
 
 function App() {
@@ -51,7 +51,8 @@ function App() {
             <Route path="add-book" element={<AdminRoute><AddBook /></AdminRoute>} />
             <Route path="statistics" element={<AdminRoute><Statistics /></AdminRoute>} />
             <Route path="manage-users" element={<AdminRoute><ManageUsers /></AdminRoute>} />
-            <Route path="system-logs" element={<AdminRoute><SystemLogs /></AdminRoute>} />
+            <Route path="penalty-history" element={<AdminRoute><PenaltyHistory /></AdminRoute>} />
+            <Route path="borrow-return-manager" element={<AdminRoute><BorrowReturnManager /></AdminRoute>} />
 
           </Route>
 

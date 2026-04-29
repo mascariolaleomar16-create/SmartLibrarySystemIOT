@@ -8,7 +8,6 @@ export default function ManageUsers() {
     const [filtered, setFiltered] = useState([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
-    const [selectedUser, setSelectedUser] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [userDetail, setUserDetail] = useState(null);
 

@@ -43,7 +43,12 @@ const borrowSchema = new mongoose.Schema({
     type:String,
     enum:["borrowed","returned","overdue"],
     default:"borrowed"
-  }
+  },
+
+  lastPenaltyDate: {
+    type: Date,
+    default: null,
+  },
 
 },{timestamps:true});
 

@@ -30,7 +30,7 @@ export default function AddBook() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
-  // 📡 RFID LISTENER (ONLY WHEN SCANNING)
+  //RFID LISTENER (ONLY WHEN SCANNING)
   useEffect(() => {
     if (!scanning) return;
 
@@ -50,12 +50,12 @@ export default function AddBook() {
     return () => socket.off("rfid-scan", handler);
   }, [scanning]);
 
-  // 🧠 INPUT HANDLER
+  //INPUT HANDLER
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 📸 IMAGE HANDLER
+  //IMAGE HANDLER
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -64,32 +64,32 @@ export default function AddBook() {
     setPreview(URL.createObjectURL(file));
   };
 
-  // ▶️ START SCAN
+  //START SCAN
   const startScan = async () => {
     await axios.post(`${API_URL}/scan/start`);
     setScanning(true);
     setMessage("Scanner started...");
   };
 
-  // ⏹ STOP SCAN
+  //STOP SCAN
   const stopScan = async () => {
     await axios.post(`${API_URL}/scan/stop`);
     setScanning(false);
     setMessage("Scanner stopped");
   };
 
-  // 🚀 SUBMIT (RFID SAFE)
+  //SUBMIT (RFID SAFE)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ❌ BLOCK EMPTY RFID
+    //BLOCK EMPTY RFID
     if (!form.rfidTag) {
-      setMessage("❌ Please scan RFID before adding the book.");
+      setMessage("Please scan RFID before adding the book.");
       return;
     }
 
     if (!form.title || !form.author) {
-      setMessage("❌ Title and Author are required.");
+      setMessage("Title and Author are required.");
       return;
     }
 
@@ -99,14 +99,14 @@ export default function AddBook() {
     try {
       const data = new FormData();
 
-      // ✅ ONLY SEND NON-EMPTY VALUES
+      //ONLY SEND NON-EMPTY VALUES
       Object.entries(form).forEach(([key, value]) => {
         if (value !== "" && value !== null && value !== undefined) {
           data.append(key, value);
         }
       });
 
-      // 📸 IMAGE
+      //IMAGE
       if (imageFile) {
         data.append("image", imageFile);
       }
@@ -124,7 +124,7 @@ export default function AddBook() {
 
       setMessage(res.data.message);
 
-      // 🔄 RESET FORM
+      //RESET FORM
       setForm({
         title: "",
         author: "",

@@ -13,6 +13,8 @@ import { startRFIDScanner } from "./middleware/rfidScanning.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import statsRoutes from "./routes/statsRoutes.js";
+import penaltyCron from "./cron/penaltyCron.js";
+import penaltyRoutes from "./routes/penaltyRoutes.js";
 
 import http from "http";
 import { initSocket } from "./middleware/socket.js";
@@ -43,6 +45,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/borrow", borrowRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/penalties", penaltyRoutes);
 
 
 
