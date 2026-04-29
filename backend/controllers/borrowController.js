@@ -288,6 +288,15 @@ export const createBorrow = async (req, res) => {
 
     await Book.findByIdAndUpdate(book, { available: false });
 
+    /* =========================
+       STEP 8: UPDATE USER BORROW HISTORY
+    ========================= */
+    await User.findByIdAndUpdate(user, {
+      $push: {
+        borrowHistory: newBorrow._id
+      }
+    });
+
     return res.status(201).json({
       success: true,
       step: "SUCCESS",

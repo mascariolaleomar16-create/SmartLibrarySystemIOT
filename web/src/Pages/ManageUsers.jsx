@@ -4,12 +4,13 @@ import axios from "axios";
 const API_URL = process.env.REACT_APP_API_URL;
 
 export default function ManageUsers() {
-    const [users, setUsers] = useState([]);
-    const [filtered, setFiltered] = useState([]);
-    const [search, setSearch] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [userDetail, setUserDetail] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [userDetail, setUserDetail] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -45,15 +46,15 @@ export default function ManageUsers() {
     }
   };
 
-    const openUser = async (id) => {
-        try {
-            const res = await axios.get(`${API_URL}/users/${id}`);
-            setUserDetail(res.data);
-            setDrawerOpen(true);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+  const openUser = async (id) => {
+    try {
+      const res = await axios.get(`${API_URL}/users/${id}`);
+      setUserDetail(res.data);
+      setDrawerOpen(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const toggleBan = async (id, banned) => {
     try {
@@ -72,7 +73,7 @@ export default function ManageUsers() {
 
       {/* HEADER */}
       <div className="bg-white p-4 rounded-xl shadow flex justify-between items-center">
-        <h2 className="text-xl font-bold">Manage Users</h2>
+        <h2 className="text-xl font-bold text-[#606c38]">Manage Users</h2>
 
         <input
           value={search}
@@ -95,12 +96,10 @@ export default function ManageUsers() {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Status</th>
-
                 <th>Total</th>
                 <th>Active</th>
                 <th>Overdue</th>
                 <th>Fines</th>
-
                 <th>Action</th>
               </tr>
             </thead>
@@ -109,12 +108,12 @@ export default function ManageUsers() {
               {filtered.map((u) => (
                 <tr key={u._id} className="border-b">
 
-                <td
+                  <td
                     className="py-2 cursor-pointer text-blue-700 hover:underline"
                     onClick={() => openUser(u._id)}
-                    >
+                  >
                     {u.username}
-                </td>
+                  </td>
 
                   <td>{u.email}</td>
 
@@ -131,9 +130,9 @@ export default function ManageUsers() {
                     )}
                   </td>
 
-                  {/* STATS */}
                   <td>{u.stats?.totalBorrowed || 0}</td>
                   <td>{u.stats?.activeBorrowed || 0}</td>
+
                   <td>
                     <span
                       className={
@@ -148,7 +147,6 @@ export default function ManageUsers() {
 
                   <td>₱{u.stats?.totalFine || 0}</td>
 
-                  {/* ACTION */}
                   <td>
                     <button
                       onClick={() => toggleBan(u._id, u.banned)}
@@ -168,101 +166,139 @@ export default function ManageUsers() {
 
           </table>
         )}
-
       </div>
-        {drawerOpen && userDetail && (
+
+      {/* =========================
+          DRAWER
+      ========================= */}
+      {drawerOpen && userDetail && (
         <div className="fixed inset-0 bg-black/40 flex justify-end z-50">
 
-            <div className="w-full md:w-[420px] bg-white h-full p-5 overflow-y-auto">
+          <div className="w-full md:w-[440px] bg-[#fefae0] h-full p-5 overflow-y-auto border-l-4 border-[#606c38]">
 
             {/* HEADER */}
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-bold">User Details</h2>
+              <h2 className="text-lg font-bold text-[#606c38]">
+                User Details
+              </h2>
 
-                <button
+              <button
                 onClick={() => setDrawerOpen(false)}
-                className="text-gray-500"
-                >
+                className="text-[#606c38] hover:text-red-600"
+              >
                 ✕
-                </button>
+              </button>
             </div>
 
             {/* USER INFO */}
             <div className="space-y-1 border-b pb-3">
-                <p className="font-bold">{userDetail.username}</p>
-                <p className="text-sm text-gray-500">{userDetail.email}</p>
+              <p className="font-bold">{userDetail.fullName}</p>
+              <p className="text-sm text-gray-600">{userDetail.email}</p>
 
-                <p className="text-xs">
+              <p className="text-xs">
                 Status:{" "}
                 <span className={userDetail.banned ? "text-red-600" : "text-green-600"}>
-                    {userDetail.banned ? "Banned" : "Active"}
+                  {userDetail.banned ? "Banned" : "Active"}
                 </span>
-                </p>
+              </p>
             </div>
 
             {/* STATS */}
             <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
 
-                <Stat label="Total Borrowed" value={userDetail.stats?.totalBorrowed} />
-                <Stat label="Active" value={userDetail.stats?.activeBorrowed} />
-                <Stat label="Overdue" value={userDetail.stats?.overdue} />
-                <Stat label="Fines" value={`₱${userDetail.stats?.totalFine}`} />
+              <Stat label="Total Borrowed" value={userDetail.stats?.totalBorrowed} />
+              <Stat label="Active" value={userDetail.stats?.activeBorrowed} />
+              <Stat label="Overdue" value={userDetail.stats?.overdue} />
+              <Stat label="Fines" value={`₱${userDetail.stats?.totalFine}`} />
 
             </div>
 
-            {/* BORROW HISTORY */}
+            {/* =========================
+                BORROW HISTORY (IMPROVED)
+            ========================= */}
             <div className="mt-5">
-                <h3 className="font-semibold mb-2">Borrow History</h3>
+              <h3 className="font-semibold mb-2 text-[#606c38]">
+                Borrow History
+              </h3>
 
-                <div className="space-y-2">
+              <div className="space-y-2">
 
                 {userDetail.borrowHistory?.length === 0 && (
-                    <p className="text-sm text-gray-400">No history</p>
+                  <p className="text-sm text-gray-400">No history yet</p>
                 )}
 
-                {userDetail.borrowHistory?.map((b) => (
+                {userDetail.borrowHistory?.map((b) => {
+                  const isReturned = b.returned;
+                  const isOverdue = !b.returned && new Date(b.dueDate) < new Date();
+
+                  return (
                     <div
-                    key={b._id}
-                    className="border p-2 rounded-lg text-sm"
+                      key={b._id}
+                      className="flex gap-3 p-2 rounded-lg border bg-white"
                     >
-                    <p className="font-medium">{b.book?.title}</p>
 
-                    <p className="text-xs text-gray-500">
-                        Due: {new Date(b.dueDate).toLocaleDateString()}
-                    </p>
+                      {/* BOOK THUMBNAIL */}
+                      <img
+                        src={b.book?.image?.url || "/default-book.jpg"}
+                        className="w-12 h-16 object-cover rounded"
+                        alt={b.book?.title}
+                      />
 
-                    <p
-                        className={
-                        b.returned
-                            ? "text-green-600 text-xs"
-                            : new Date(b.dueDate) < new Date()
-                            ? "text-red-500 text-xs"
-                            : "text-gray-500 text-xs"
-                        }
-                    >
-                        {b.returned
-                        ? "Returned"
-                        : new Date(b.dueDate) < new Date()
-                        ? "Overdue"
-                        : "Borrowed"}
-                    </p>
+                      {/* INFO */}
+                      <div className="flex-1">
 
+                        <p className="font-medium text-sm">
+                          {b.book?.title}
+                        </p>
+
+                        <p className="text-xs text-gray-500">
+                          Due: {new Date(b.dueDate).toLocaleDateString()}
+                        </p>
+
+                        {/* STATUS BADGE */}
+                        <div className="mt-1">
+
+                          {isReturned && (
+                            <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
+                              Returned
+                            </span>
+                          )}
+
+                          {!isReturned && isOverdue && (
+                            <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600">
+                              Overdue
+                            </span>
+                          )}
+
+                          {!isReturned && !isOverdue && (
+                            <span className="text-xs px-2 py-1 rounded bg-[#fefae0] text-[#606c38]">
+                              Currently with user
+                            </span>
+                          )}
+
+                        </div>
+
+                      </div>
                     </div>
-                ))}
+                  );
+                })}
 
-                </div>
+              </div>
             </div>
 
-            </div>
+          </div>
         </div>
-        )}
+      )}
     </div>
   );
 }
 
+/* =========================
+   STATS COMPONENT
+========================= */
 function Stat({ label, value }) {
   return (
-    <div className="bg-gray-50 p-2 rounded-lg text-center">
+    <div className="bg-white border border-[#606c38]/20 p-2 rounded-lg text-center">
       <p className="text-xs text-gray-500">{label}</p>
       <p className="font-bold text-[#606c38]">{value || 0}</p>
     </div>
