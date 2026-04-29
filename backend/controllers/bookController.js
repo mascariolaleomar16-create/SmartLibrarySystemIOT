@@ -1,6 +1,9 @@
 import crypto from "crypto";
 import { Book } from "../models/Book.js";
 import { Borrow } from "../models/Borrow.js";
+import fs from "fs";
+import { uploadToCloudinary } from "../middleware/cloudinary.js";
+import { deleteUploadedFile } from "../middleware/filehandling.js";
 
 
 /* =========================
@@ -101,7 +104,6 @@ export const getBookByRFID = async (req, res) => {
 ========================= */
 export const createBook = async (req, res) => {
   try {
-
     const {
       title,
       author,
@@ -112,6 +114,9 @@ export const createBook = async (req, res) => {
       shelfNumber
     } = req.body;
 
+    const file = req.file;
+
+    // ❌ REQUIRED FIELDS
     if (!title || !author) {
       return res.status(400).json({
         success: false,
@@ -119,15 +124,16 @@ export const createBook = async (req, res) => {
       });
     }
 
-    let finalRFID = rfidTag;
-
-    if (!finalRFID) {
-      finalRFID = `RFID-${Date.now().toString(36)}-${crypto
-        .randomBytes(3)
-        .toString("hex")}`;
+    // 📡 RFID MUST COME FROM REAL SCAN
+    if (!rfidTag) {
+      return res.status(400).json({
+        success: false,
+        message: "RFID tag is required. Please scan the book first."
+      });
     }
 
-    const rfidExists = await Book.findOne({ rfidTag: finalRFID });
+    // 🔍 CHECK RFID DUPLICATE
+    const rfidExists = await Book.findOne({ rfidTag });
 
     if (rfidExists) {
       return res.status(400).json({
@@ -136,6 +142,7 @@ export const createBook = async (req, res) => {
       });
     }
 
+    // 🔍 CHECK ISBN DUPLICATE (optional)
     if (isbn) {
       const isbnExists = await Book.findOne({ isbn });
 
@@ -147,14 +154,37 @@ export const createBook = async (req, res) => {
       }
     }
 
+    // 🖼️ DEFAULT IMAGE
+    let imageData = {
+      url: "/images/default-book.jpg",
+      public_id: null
+    };
+
+    // ☁️ UPLOAD IMAGE TO CLOUDINARY
+    if (file) {
+      const result = await uploadToCloudinary(file.path, {
+        folder: "library/books"
+      });
+
+      imageData = {
+        url: result.secure_url,
+        public_id: result.public_id
+      };
+
+      // 🧹 DELETE LOCAL FILE AFTER UPLOAD
+      await deleteUploadedFile(file.path);
+    }
+
+    // 📚 CREATE BOOK
     const newBook = new Book({
       title,
       author,
       isbn,
       description,
       category: category || "General",
-      rfidTag: finalRFID,
-      shelfNumber: shelfNumber || "Unassigned"
+      rfidTag, // 🔥 REAL RFID ONLY
+      shelfNumber: shelfNumber || "Unassigned",
+      image: imageData
     });
 
     await newBook.save();
@@ -166,7 +196,6 @@ export const createBook = async (req, res) => {
     });
 
   } catch (err) {
-
     console.error("Create book error:", err);
 
     return res.status(500).json({
