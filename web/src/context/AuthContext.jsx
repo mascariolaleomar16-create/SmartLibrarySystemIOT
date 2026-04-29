@@ -30,8 +30,10 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+  const isAdmin = user?.role === "admin";
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, fetchUser }}>
+    <AuthContext.Provider value={{ user, setUser, loading, fetchUser, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

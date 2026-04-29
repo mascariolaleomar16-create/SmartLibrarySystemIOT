@@ -14,12 +14,17 @@ import DashboardHome from './Pages/DashboardHome.jsx';
 import BorrowedBook from './Pages/BorrowedBook.jsx';
 import Notifications from './Pages/Notifications.jsx';
 import LibraryCatalogue from './Pages/LibraryCatalogue.jsx';
+import AddBook from './Pages/AddBook.jsx';
+import Statistics from './Pages/Statistics.jsx';
+import ManageUsers from './Pages/ManageUsers.jsx';
+import SystemLogs from './Pages/SystemLogs.jsx';
+import AdminRoute from './Components/AdminRoute.jsx';
 
 
 
 function App() {
   return (
-    <AuthProvider> {/* ✅ WRAP EVERYTHING */}
+    <AuthProvider>
       <BrowserRouter>
         <Navbar />
 
@@ -28,7 +33,7 @@ function App() {
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Registration /></PublicRoute>} />
 
-          {/* 🔐 PROTECTED ROUTE */}
+          {/* PROTECTED ROUTE */}
           <Route
             path="/dashboard/*"
             element={
@@ -42,6 +47,11 @@ function App() {
             <Route path="borrowed-books" element={<BorrowedBook />} />
             <Route path="catalogue" element={<LibraryCatalogue />} />
             <Route path="notifications" element={<Notifications />} />
+
+            <Route path="add-book" element={<AdminRoute><AddBook /></AdminRoute>} />
+            <Route path="statistics" element={<AdminRoute><Statistics /></AdminRoute>} />
+            <Route path="manage-users" element={<AdminRoute><ManageUsers /></AdminRoute>} />
+            <Route path="system-logs" element={<AdminRoute><SystemLogs /></AdminRoute>} />
 
           </Route>
 
