@@ -81,12 +81,12 @@ export default function DashboardLayout() {
         />
 
         <UserCard
-          title="Due Soon"
+          title="My Books Due Soon"
           value={loading ? "Loading..." : `${dueSoonCount} Books`}
         />
 
         <UserCard
-          title="Overdue"
+          title="My Overdue Books"
           value={loading ? "Loading..." : `${overdueCount} Books`}
         />
 

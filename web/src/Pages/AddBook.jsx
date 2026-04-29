@@ -2,13 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import {
-  FiBook,
-  FiUser,
-  FiTag,
-  FiHash,
-  FiFolder,
-  FiMapPin,
-  FiFileText,
   FiPlusCircle,
   FiPlay,
   FiSquare,

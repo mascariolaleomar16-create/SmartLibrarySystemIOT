@@ -11,6 +11,8 @@ import authRoutes from "./routes/authRoutes.js";
 import borrowRoutes from "./routes/borrowRoutes.js";
 import { startRFIDScanner } from "./middleware/rfidScanning.js";
 import cookieParser from "cookie-parser";
+import userRoutes from "./routes/userRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 import http from "http";
 import { initSocket } from "./middleware/socket.js";
@@ -39,6 +41,10 @@ app.use("/api/scan", scanRoutes);
 app.use("/api/books", booksRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/borrow", borrowRoutes);
+app.use("/api/stats", statsRoutes);
+app.use("/api/users", userRoutes);
+
+
 
 /* ================= ERROR HANDLING ================= */
 process.on("unhandledRejection", (err) => {
