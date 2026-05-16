@@ -40,34 +40,94 @@ export default function Registration() {
     email: "",
     password: "",
     confirmPassword: "",
-    address: {
-      street: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "",
-    },
+    address: "",
   });
-
-  const addressFields = ["street", "city", "state", "postalCode", "country"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (addressFields.includes(name)) {
-      setForm((prev) => ({
-        ...prev,
-        address: {
-          ...prev.address,
-          [name]: value,
-        },
-      }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  /* ADDRESS HELPERS */
+  const getAddressParts = (addressString) => {
+    return addressString
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+  };
+
+  const isNumeric = (value) => {
+    return /^\d+$/.test(value);
+  };
+
+  /* SMART PARSER (street/city/state/postal/country) */
+  const parseAddress = (addressString) => {
+    const parts = getAddressParts(addressString);
+
+    let street = "";
+    let city = "";
+    let state = "";
+    let postalCode = "";
+    let country = "";
+
+    if (parts.length === 0) return { street, city, state, postalCode, country };
+
+    street = parts[0] || "";
+
+    country = parts[parts.length - 1] || "";
+
+    const middle = parts.slice(1, -1);
+
+    middle.forEach((item) => {
+      if (isNumeric(item)) {
+        postalCode = item;
+      } else if (!city) {
+        city = item;
+      } else {
+        state = item;
+      }
+    });
+
+    return {
+      street,
+      city,
+      state,
+      postalCode,
+      country,
+    };
+  };
+
+  /* VALIDATION (backend requirement safe) */
+  const validateAddress = (addressString) => {
+    const parts = getAddressParts(addressString);
+
+    const street = parts[0];
+    const country = parts[parts.length - 1];
+
+    const middle = parts.slice(1, -1);
+    const hasCity = middle.some((p) => !/^\d+$/.test(p));
+
+    if (!street || !hasCity || !country) {
+      showWarning(
+        "Please include Street, City, and Country in the address"
+      );
+      return false;
     }
+
+    return true;
+  };
+
+  /* CHECKLIST LOGIC */
+  const addressParts = getAddressParts(form.address);
+
+  const addressCheck = {
+    street: !!addressParts[0],
+    city: !!addressParts[1],
+    country: !!addressParts[addressParts.length - 1],
   };
 
   const handleSubmit = async (e) => {
@@ -77,20 +137,31 @@ export default function Registration() {
       return showWarning("Passwords do not match");
     }
 
+    if (!validateAddress(form.address)) return;
+
     setLoading(true);
 
     try {
-      const { confirmPassword, ...rest } = form;
+      const { confirmPassword, address, ...rest } = form;
 
-      await axios.post(`${API_URL}/auth/register`, rest, {
-        headers: { "Content-Type": "application/json" },
-      });
+      await axios.post(
+        `${API_URL}/auth/register`,
+        {
+          ...rest,
+          address: parseAddress(address),
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       showSuccess("Registration successful");
       navigate("/login");
     } catch (err) {
       console.error(err);
-      showError(err.response?.data?.message || "Registration failed. Try again.");
+      showError(
+        err.response?.data?.message || "Registration failed. Try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -98,10 +169,9 @@ export default function Registration() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-10 px-4">
-
       <div className="w-full max-w-2xl bg-white border border-blue-100 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
 
-        {/* RED TOP ACCENT */}
+        {/* TOP ACCENT */}
         <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
 
         {/* HEADER */}
@@ -170,17 +240,46 @@ export default function Registration() {
             Address
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-3">
+          <InputField
+            label="Full Address"
+            name="address"
+            value={form.address}
+            required
+            onChange={handleChange}
+          />
 
-            <InputField label="Street" name="street" value={form.address.street} required onChange={handleChange} />
-            <InputField label="City" name="city" value={form.address.city} required onChange={handleChange} />
-            <InputField label="State" name="state" value={form.address.state} onChange={handleChange} />
-            <InputField label="Postal Code" name="postalCode" value={form.address.postalCode} onChange={handleChange} />
+          <p className="text-xs text-gray-400">
+            Format: Street, City, (Optional: State, Postal Code), Country
+          </p>
 
-            <div className="md:col-span-2">
-              <InputField label="Country" name="country" value={form.address.country} required onChange={handleChange} />
+          <p className="text-xs text-gray-500 mt-1">
+            Example: 123 Main St, Iloilo City, 5000, Philippines
+          </p>
+
+          {/* CHECKLIST */}
+          <div className="mt-3 text-sm space-y-1">
+            <p className="font-semibold text-gray-700">Required fields:</p>
+
+            <div className="flex items-center gap-2">
+              <span className={addressCheck.street ? "text-green-600" : "text-red-500"}>
+                {addressCheck.street ? "✔" : "•"}
+              </span>
+              <span>Street</span>
             </div>
 
+            <div className="flex items-center gap-2">
+              <span className={addressCheck.city ? "text-green-600" : "text-red-500"}>
+                {addressCheck.city ? "✔" : "•"}
+              </span>
+              <span>City</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className={addressCheck.country ? "text-green-600" : "text-red-500"}>
+                {addressCheck.country ? "✔" : "•"}
+              </span>
+              <span>Country</span>
+            </div>
           </div>
 
           {/* BUTTON */}
@@ -191,7 +290,6 @@ export default function Registration() {
           >
             {loading ? "Registering..." : "Register"}
           </button>
-
         </form>
 
         {/* LOGIN LINK */}
@@ -204,7 +302,6 @@ export default function Registration() {
             Login
           </Link>
         </p>
-
       </div>
     </div>
   );

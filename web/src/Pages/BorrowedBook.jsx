@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import BorrowedBookCard from "../Components/BorrowedBookCard.jsx";
-
 import {
-  FiClock,
-  FiCheckCircle,
-  FiAlertTriangle,
   FiBookOpen,
 } from "react-icons/fi";
 
@@ -16,12 +12,15 @@ export default function BorrowedBook() {
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  //PAGINATION STATE
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // 1. Get user
         const userRes = await axios.get(`${API_URL}/auth/me`, {
           withCredentials: true,
         });
@@ -29,7 +28,6 @@ export default function BorrowedBook() {
         const userData = userRes.data.user;
         setUser(userData);
 
-        // 2. Get borrows
         const borrowRes = await axios.get(
           `${API_URL}/borrow/user/${userData._id}`,
           { withCredentials: true }
@@ -37,10 +35,12 @@ export default function BorrowedBook() {
 
         const borrowData = borrowRes.data.borrows;
 
-        // 3. FETCH BOOK DETAILS PER BORROW
-        const enriched = await Promise.all(
-          borrowData.map(async (b) => {
+        const uniqueBorrows = Array.from(
+          new Map(borrowData.map((b) => [b._id, b])).values()
+        );
 
+        const enriched = await Promise.all(
+          uniqueBorrows.map(async (b) => {
             const bookId = b.book?._id || b.book;
 
             try {
@@ -48,63 +48,39 @@ export default function BorrowedBook() {
                 `${API_URL}/books/getById/${bookId}`
               );
 
-              return {
-                ...b,
-                book: bookRes.data.book,
-              };
-
-            } catch (err) {
-              console.error("Error fetching book:", err);
-
-              return {
-                ...b,
-                book: null,
-              };
+              return { ...b, book: bookRes.data.book };
+            } catch {
+              return { ...b, book: null };
             }
           })
         );
 
         setBorrows(enriched);
-
-      } catch (error) {
-        console.error("Error loading borrowed books:", error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [API_URL]);
 
-  const isOverdue = (dueDate) => {
-    return dueDate && new Date(dueDate) < new Date();
+  //pagination calculations
+  const totalPages = Math.ceil(borrows.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = borrows.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const goNext = () => {
+    setCurrentPage((p) => Math.min(p + 1, totalPages));
   };
 
-  const renderStatus = (borrow) => {
-    if (borrow.returned) {
-      return (
-        <span className="flex items-center gap-1 text-xs text-gray-500">
-          <FiCheckCircle />
-          Returned
-        </span>
-      );
-    }
-
-    if (isOverdue(borrow.dueDate)) {
-      return (
-        <span className="flex items-center gap-1 text-xs text-red-600">
-          <FiAlertTriangle />
-          Overdue
-        </span>
-      );
-    }
-
-    return (
-      <span className="flex items-center gap-1 text-xs text-green-600">
-        <FiClock />
-        On Time
-      </span>
-    );
+  const goPrev = () => {
+    setCurrentPage((p) => Math.max(p - 1, 1));
   };
 
   return (
@@ -125,34 +101,50 @@ export default function BorrowedBook() {
           <p className="text-center text-gray-500">
             Loading borrowed books...
           </p>
-
         ) : !user ? (
           <p className="text-center text-red-500">
             Not authenticated
           </p>
-
         ) : borrows.length === 0 ? (
           <p className="text-center text-gray-500">
             No borrowed books found.
           </p>
-
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <>
+            {/* GRID */}
+            <div className="grid grid-cols-3 gap-4">
+              {currentItems.map((borrow) => (
+                <BorrowedBookCard
+                  key={borrow._id}
+                  borrow={borrow}
+                />
+              ))}
+            </div>
 
-            {borrows.map((borrow) => (
-              <div key={borrow._id} className="space-y-2">
+            {/* PAGINATION CONTROLS */}
+            <div className="flex justify-center items-center gap-4 mt-6">
+              <button
+                onClick={goPrev}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Prev
+              </button>
 
-                {/* SAFE BOOK CARD */}
-                {borrows.map((borrow) => (
-                  <BorrowedBookCard key={borrow._id} borrow={borrow} />
-                ))}
+              <span className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages || 1}
+              </span>
 
-              </div>
-            ))}
-
-          </div>
+              <button
+                onClick={goNext}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
-
       </div>
     </div>
   );
