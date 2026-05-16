@@ -10,6 +10,8 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 
+import { showSuccess, showError, showWarning } from "../utils/toast";
+
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -32,14 +34,17 @@ export default function RFIDScan() {
           `${API_URL}/books/getByRFID/${cleanedRFID}`
         );
 
-        if (res.data.success) {
+        if (res.data.success && res.data.book) {
           setBook(res.data.book);
+          showSuccess(`Book found: ${res.data.book.title}`);
         } else {
           setBook(null);
+          showWarning("No book found for this RFID");
         }
       } catch (err) {
         console.error("Error fetching book:", err);
         setBook(null);
+        showError("Failed to fetch book data");
       } finally {
         setLoading(false);
       }
@@ -49,15 +54,25 @@ export default function RFIDScan() {
   }, []);
 
   const startScan = async () => {
-    await axios.post(`${API_URL}/scan/start`);
-    setScanning(true);
-    setUid(null);
-    setBook(null);
+    try {
+      await axios.post(`${API_URL}/scan/start`);
+      setScanning(true);
+      setUid(null);
+      setBook(null);
+      showSuccess("Scanner started");
+    } catch {
+      showError("Failed to start scanner");
+    }
   };
 
   const stopScan = async () => {
-    await axios.post(`${API_URL}/scan/stop`);
-    setScanning(false);
+    try {
+      await axios.post(`${API_URL}/scan/stop`);
+      setScanning(false);
+      showWarning("Scanner stopped");
+    } catch {
+      showError("Failed to stop scanner");
+    }
   };
 
   const isAvailable = book?.available === true;

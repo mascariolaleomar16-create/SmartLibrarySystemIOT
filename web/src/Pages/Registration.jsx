@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { showSuccess, showError, showWarning } from "../utils/toast";
 
 /* INPUT FIELD */
-const InputField = ({ label, name, type = "text", required = false, value, onChange }) => (
+const InputField = ({
+  label,
+  name,
+  type = "text",
+  required = false,
+  value,
+  onChange,
+}) => (
   <div>
     <label className="block text-sm font-semibold mb-1 text-gray-700">
       {label} {required && <span className="text-red-500">*</span>}
@@ -25,7 +33,6 @@ export default function Registration() {
   const API_URL = process.env.REACT_APP_API_URL;
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     username: "",
@@ -65,11 +72,9 @@ export default function Registration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
-      return;
+      return showWarning("Passwords do not match");
     }
 
     setLoading(true);
@@ -81,10 +86,11 @@ export default function Registration() {
         headers: { "Content-Type": "application/json" },
       });
 
+      showSuccess("Registration successful");
       navigate("/login");
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Registration failed. Try again.");
+      showError(err.response?.data?.message || "Registration failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -176,13 +182,6 @@ export default function Registration() {
             </div>
 
           </div>
-
-          {/* ERROR */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
-              {error}
-            </div>
-          )}
 
           {/* BUTTON */}
           <button

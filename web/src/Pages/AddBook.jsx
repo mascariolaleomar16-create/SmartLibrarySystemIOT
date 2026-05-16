@@ -9,6 +9,8 @@ import {
   FiImage,
 } from "react-icons/fi";
 
+import { showSuccess, showError, showWarning } from "../utils/toast";
+
 const API_URL = process.env.REACT_APP_API_URL;
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 
@@ -28,7 +30,6 @@ export default function AddBook() {
 
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     if (!scanning) return;
@@ -41,7 +42,7 @@ export default function AddBook() {
         rfidTag: cleaned,
       }));
 
-      setMessage(`RFID detected: ${cleaned}`);
+      showSuccess(`RFID detected: ${cleaned}`);
     };
 
     socket.on("rfid-scan", handler);
@@ -62,32 +63,37 @@ export default function AddBook() {
   };
 
   const startScan = async () => {
-    await axios.post(`${API_URL}/scan/start`);
-    setScanning(true);
-    setMessage("Scanner started...");
+    try {
+      await axios.post(`${API_URL}/scan/start`);
+      setScanning(true);
+      showSuccess("Scanner started");
+    } catch {
+      showError("Failed to start scanner");
+    }
   };
 
   const stopScan = async () => {
-    await axios.post(`${API_URL}/scan/stop`);
-    setScanning(false);
-    setMessage("Scanner stopped");
+    try {
+      await axios.post(`${API_URL}/scan/stop`);
+      setScanning(false);
+      showWarning("Scanner stopped");
+    } catch {
+      showError("Failed to stop scanner");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.rfidTag) {
-      setMessage("Please scan RFID before adding the book.");
-      return;
+      return showWarning("Please scan RFID before adding the book.");
     }
 
     if (!form.title || !form.author) {
-      setMessage("Title and Author are required.");
-      return;
+      return showWarning("Title and Author are required.");
     }
 
     setLoading(true);
-    setMessage(null);
 
     try {
       const data = new FormData();
@@ -111,7 +117,7 @@ export default function AddBook() {
         }
       );
 
-      setMessage(res.data.message);
+      showSuccess(res.data.message || "Book added successfully");
 
       setForm({
         title: "",
@@ -126,7 +132,7 @@ export default function AddBook() {
       setImageFile(null);
       setPreview(null);
     } catch (err) {
-      setMessage(err.response?.data?.message || "Error creating book");
+      showError(err.response?.data?.message || "Error creating book");
     } finally {
       setLoading(false);
     }
@@ -249,12 +255,6 @@ export default function AddBook() {
           >
             {loading ? "Saving..." : "Add Book"}
           </button>
-
-          {message && (
-            <p className="text-center text-sm text-red-500">
-              {message}
-            </p>
-          )}
 
         </div>
 

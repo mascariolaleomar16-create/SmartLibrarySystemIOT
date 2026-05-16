@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
-import { FiPlay, FiSquare, FiMapPin } from "react-icons/fi";
+import { FiPlay, FiSquare, FiMapPin} from "react-icons/fi";
+import { IoWarning } from "react-icons/io5";
+import { showSuccess, showError, showWarning } from "../utils/toast";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL);
 const API_URL = process.env.REACT_APP_API_URL;
@@ -17,14 +19,15 @@ export default function BorrowReturnManager() {
   const [selectedUser, setSelectedUser] = useState("");
 
   useEffect(() => {
-    axios.get(`${API_URL}/users/`)
-      .then(res => {
+    axios
+      .get(`${API_URL}/users/`)
+      .then((res) => {
         const activeUsers = res.data.filter(
           (u) => u.banned === false || u.banned === "false" || u.banned === 0
         );
         setUsers(activeUsers);
       })
-      .catch(err => console.error(err));
+      .catch(() => showError("Failed to load users"));
   }, []);
 
   useEffect(() => {
@@ -43,8 +46,8 @@ export default function BorrowReturnManager() {
 
         setBook(res.data.book);
       } catch (err) {
-        console.error(err);
         setBook(null);
+        showError("Book not found");
       }
     };
 
@@ -53,20 +56,30 @@ export default function BorrowReturnManager() {
   }, [scanning]);
 
   const startScan = async () => {
-    await axios.post(`${API_URL}/scan/start`);
-    setScanning(true);
-    setRfid("");
-    setBook(null);
+    try {
+      await axios.post(`${API_URL}/scan/start`);
+      setScanning(true);
+      setRfid("");
+      setBook(null);
+      showSuccess("Scanner started");
+    } catch {
+      showError("Failed to start scanner");
+    }
   };
 
   const stopScan = async () => {
-    await axios.post(`${API_URL}/scan/stop`);
-    setScanning(false);
+    try {
+      await axios.post(`${API_URL}/scan/stop`);
+      setScanning(false);
+      showWarning("Scanner stopped");
+    } catch {
+      showError("Failed to stop scanner");
+    }
   };
 
   const handleBorrow = async () => {
-    if (!book?._id) return alert("No book selected");
-    if (!selectedUser) return alert("Please select a user");
+    if (!book?._id) return showError("No book selected");
+    if (!selectedUser) return showError("Please select a user");
 
     try {
       await axios.post(`${API_URL}/borrow/`, {
@@ -74,40 +87,39 @@ export default function BorrowReturnManager() {
         book: book._id,
       });
 
-      alert("Book borrowed successfully");
+      showSuccess("Book borrowed successfully");
 
       setBook(null);
       setRfid("");
       setSelectedUser("");
     } catch (err) {
-      alert(err.response?.data?.message || "Borrow failed");
+      showError(err.response?.data?.message || "Borrow failed");
     }
   };
 
   const handleReturn = async () => {
-    if (!book?._id) return alert("No book scanned");
+    if (!book?._id) return showError("No book scanned");
 
     try {
       const res = await axios.put(
         `${API_URL}/borrow/return-by-book/${book._id}`
       );
 
-      alert(
-        `Book returned successfully${
-          res.data.fine ? ` | Fine: ₱${res.data.fine}` : ""
-        }`
-      );
+      if (res.data.fine) {
+        showWarning(`Returned with fine: ₱${res.data.fine}`);
+      } else {
+        showSuccess("Book returned successfully");
+      }
 
       setBook(null);
       setRfid("");
     } catch (err) {
-      alert(err.response?.data?.message || "Return failed");
+      showError(err.response?.data?.message || "Return failed");
     }
   };
 
   return (
     <div className="space-y-6">
-
       <div className="flex gap-3">
         <button
           onClick={() => setMode("borrow")}
@@ -156,7 +168,6 @@ export default function BorrowReturnManager() {
 
       {book && (
         <div className="bg-white p-5 rounded-xl shadow grid md:grid-cols-3 gap-4 border border-blue-100">
-
           <div className="flex justify-center">
             <img
               src={book.image?.url || "/default-book.jpg"}
@@ -166,14 +177,12 @@ export default function BorrowReturnManager() {
           </div>
 
           <div className="md:col-span-2 space-y-1">
-
             <h2 className="text-xl font-bold text-blue-700">{book.title}</h2>
             <p className="text-gray-600">{book.author}</p>
 
             <p className="text-xs text-gray-400">RFID: {rfid}</p>
 
             <div className="flex gap-2 flex-wrap mt-2">
-
               <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs">
                 {book.category}
               </span>
@@ -183,26 +192,25 @@ export default function BorrowReturnManager() {
                 {book.shelfNumber}
               </span>
 
-              <span className={`text-xs px-3 py-1 rounded-full ${
-                book.available
-                  ? "bg-blue-100 text-blue-700"
-                  : "bg-red-100 text-red-600"
-              }`}>
+              <span
+                className={`text-xs px-3 py-1 rounded-full ${
+                  book.available
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-red-100 text-red-600"
+                }`}
+              >
                 {book.available ? "Available" : "Borrowed"}
               </span>
-
             </div>
-
           </div>
         </div>
       )}
 
       {mode === "borrow" && book && (
         <div className="bg-white p-4 rounded-xl shadow space-y-3 border border-blue-100">
-
           {!book.available && (
             <div className="bg-red-100 text-red-700 p-2 rounded text-sm">
-              ⚠️ This book is currently unavailable.
+              <IoWarning /> This book is currently unavailable.
             </div>
           )}
 
@@ -230,13 +238,11 @@ export default function BorrowReturnManager() {
           >
             Borrow Book
           </button>
-
         </div>
       )}
 
       {mode === "return" && book && (
         <div className="bg-white p-4 rounded-xl shadow space-y-3 border border-red-100">
-
           {book.available && (
             <div className="bg-red-100 text-red-700 p-2 rounded text-sm">
               ⚠️ This book is not currently borrowed.
@@ -254,10 +260,8 @@ export default function BorrowReturnManager() {
           >
             Return Book
           </button>
-
         </div>
       )}
-
     </div>
   );
 }

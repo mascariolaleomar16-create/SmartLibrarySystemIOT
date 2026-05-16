@@ -20,12 +20,15 @@ import ManageUsers from './Pages/ManageUsers.jsx';
 import AdminRoute from './Components/AdminRoute.jsx';
 import PenaltyHistory from './Pages/PenaltyHistory.jsx';
 import BorrowReturnManager from './Pages/BorrowReturnManager.jsx';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ToastContainer /> 
         <Navbar />
 
         <Routes>

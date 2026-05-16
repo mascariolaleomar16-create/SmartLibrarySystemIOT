@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import { showSuccess, showError, showWarning } from "../utils/toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -11,7 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -19,22 +19,22 @@ export default function LoginPage() {
     e.preventDefault();
 
     setLoading(true);
-    setError("");
 
     try {
-      await axios.post(
-        `${API_URL}/auth/login`,
-        { email, password }
-      );
+      await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
 
       await fetchUser();
 
-      navigate("/dashboard");
+      showSuccess("Login successful");
 
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
 
-      setError(
+      showError(
         err.response?.data?.message || "Login failed. Please try again."
       );
     } finally {
@@ -101,12 +101,6 @@ export default function LoginPage() {
               required
             />
           </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-300 text-red-600 text-sm rounded-xl px-4 py-3">
-              {error}
-            </div>
-          )}
 
           <button
             type="submit"
