@@ -61,7 +61,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-3xl font-extrabold text-blue-600">
-            Smart Library Login
+            BookFlow Login
           </h1>
 
           <p className="text-gray-500 mt-2 text-sm">

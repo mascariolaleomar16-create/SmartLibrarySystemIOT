@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -17,7 +18,6 @@ export default function Footer() {
             Easily manage books, users, and borrowing activities.
           </p>
 
-          {/* Red Accent Line */}
           <div className="w-12 h-1 bg-red-500 mt-4 rounded-full"></div>
         </div>
 
@@ -29,30 +29,27 @@ export default function Footer() {
 
           <ul className="space-y-2 text-blue-100">
             <li>
-              <a
-                href="/"
-                className="hover:text-red-300 hover:underline transition"
-              >
+              <Link to="/" className="hover:text-red-300 hover:underline transition">
                 Home
-              </a>
+              </Link>
             </li>
 
             <li>
-              <a
-                href="/login"
-                className="hover:text-red-300 hover:underline transition"
-              >
+              <Link to="/login" className="hover:text-red-300 hover:underline transition">
                 Login
-              </a>
+              </Link>
             </li>
 
             <li>
-              <a
-                href="/register"
-                className="hover:text-red-300 hover:underline transition"
-              >
+              <Link to="/register" className="hover:text-red-300 hover:underline transition">
                 Register
-              </a>
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/credits" className="hover:text-red-300 hover:underline transition">
+                Credits
+              </Link>
             </li>
           </ul>
         </div>
@@ -86,7 +83,7 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-red-500 text-center py-4 text-sm text-blue-100">
         <span className="text-red-300 font-semibold">©</span>{" "}
-        {new Date().getFullYear()} BookFlow | All Rights Reserved
+        {new Date().getFullYear()} BookFlow | BSIT-3A Batch 2025–2026 | All Rights Reserved
       </div>
 
     </footer>

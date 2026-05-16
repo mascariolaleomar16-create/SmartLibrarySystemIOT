@@ -176,7 +176,7 @@ export default function Registration() {
 
         {/* HEADER */}
         <h1 className="text-3xl font-extrabold text-center mb-2 text-blue-600">
-          Smart Library Register
+          BookFlow Register
         </h1>
 
         <p className="text-center text-gray-500 mb-6">
