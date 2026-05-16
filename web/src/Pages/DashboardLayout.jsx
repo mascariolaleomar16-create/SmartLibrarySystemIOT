@@ -19,9 +19,6 @@ export default function DashboardLayout() {
       try {
         setLoading(true);
 
-        /* =========================
-           GET USER
-        ========================= */
         const userRes = await axios.get(`${API_URL}/auth/me`, {
           withCredentials: true,
         });
@@ -29,9 +26,6 @@ export default function DashboardLayout() {
         const userId = userRes.data.user._id;
         setUser(userRes.data.user);
 
-        /* =========================
-           GET TOTAL BORROWS
-        ========================= */
         const allRes = await axios.get(
           `${API_URL}/borrow/user/${userId}`,
           { withCredentials: true }
@@ -39,9 +33,6 @@ export default function DashboardLayout() {
 
         setTotalBorrowed(allRes.data.borrows?.length || 0);
 
-        /* =========================
-           GET OVERDUE (BACKEND)
-        ========================= */
         const overdueRes = await axios.get(
           `${API_URL}/borrow/user/${userId}/overdue`,
           { withCredentials: true }
@@ -49,9 +40,6 @@ export default function DashboardLayout() {
 
         setOverdueCount(overdueRes.data.count || 0);
 
-        /* =========================
-           GET DUE SOON (BACKEND)
-        ========================= */
         const dueSoonRes = await axios.get(
           `${API_URL}/borrow/user/${userId}/due-soon`,
           { withCredentials: true }
@@ -70,35 +58,40 @@ export default function DashboardLayout() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#fefae0] text-[#333] flex flex-col">
+    <div className="min-h-screen bg-white text-gray-800 flex flex-col">
 
       {/* TOP SUMMARY */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
 
         <UserCard
           title="My Borrowed Books"
           value={loading ? "Loading..." : `${totalBorrowed} Books`}
+          type="blue"
         />
 
         <UserCard
-          title="My Books Due Soon"
+          title="Due Soon"
           value={loading ? "Loading..." : `${dueSoonCount} Books`}
+          type="blue"
         />
 
         <UserCard
-          title="My Overdue Books"
+          title="Overdue Books"
           value={loading ? "Loading..." : `${overdueCount} Books`}
+          type="red"
         />
 
       </section>
 
       {/* MAIN AREA */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 bg-gray-50">
+
         <Sidebar />
 
         <main className="flex-1 p-6">
           <Outlet />
         </main>
+
       </div>
 
     </div>
@@ -108,11 +101,32 @@ export default function DashboardLayout() {
 /* =========================
    CARD COMPONENT
 ========================= */
-function UserCard({ title, value }) {
+function UserCard({ title, value, type }) {
+  const isRed = type === "red";
+
   return (
-    <div className="bg-white p-4 rounded-2xl shadow text-center hover:scale-105 transition">
-      <h3 className="text-sm text-gray-500">{title}</h3>
-      <p className="text-xl font-bold text-[#283618]">{value}</p>
+    <div
+      className={`relative bg-white p-5 rounded-2xl shadow-md border transition hover:scale-[1.02]
+      ${isRed ? "border-red-200" : "border-blue-100"}`}
+    >
+
+      {/* TOP ACCENT BAR */}
+      <div
+        className={`absolute top-0 left-0 w-full h-1 rounded-t-2xl
+        ${isRed ? "bg-red-500" : "bg-blue-600"}`}
+      ></div>
+
+      <h3 className="text-sm text-gray-500 mb-2">
+        {title}
+      </h3>
+
+      <p
+        className={`text-2xl font-extrabold
+        ${isRed ? "text-red-500" : "text-blue-600"}`}
+      >
+        {value}
+      </p>
+
     </div>
   );
 }

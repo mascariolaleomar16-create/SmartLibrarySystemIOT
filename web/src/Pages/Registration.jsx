@@ -2,18 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-/* ✅ MOVE THIS OUTSIDE COMPONENT */
+/* INPUT FIELD */
 const InputField = ({ label, name, type = "text", required = false, value, onChange }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">
+    <label className="block text-sm font-semibold mb-1 text-gray-700">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
+
     <input
       type={type}
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full p-3 rounded-lg border"
+      className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
       required={required}
     />
   </div>
@@ -80,7 +81,6 @@ export default function Registration() {
         headers: { "Content-Type": "application/json" },
       });
 
-      alert("Registration successful");
       navigate("/login");
     } catch (err) {
       console.error(err);
@@ -91,24 +91,36 @@ export default function Registration() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fefae0] py-10">
-      <div className="w-full max-w-2xl bg-[#e9edc9] p-8 rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6 text-[#d4a373]">
+    <div className="min-h-screen flex items-center justify-center bg-white py-10 px-4">
+
+      <div className="w-full max-w-2xl bg-white border border-blue-100 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+
+        {/* RED TOP ACCENT */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+
+        {/* HEADER */}
+        <h1 className="text-3xl font-extrabold text-center mb-2 text-blue-600">
           Smart Library Register
         </h1>
 
+        <p className="text-center text-gray-500 mb-6">
+          Create your BookFlow account
+        </p>
+
         <form onSubmit={handleSubmit} className="space-y-4">
 
+          {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Full Name <span className="text-gray-500">(optional)</span>
+            <label className="block text-sm font-semibold mb-1 text-gray-700">
+              Full Name <span className="text-red-500">(optional)</span>
             </label>
+
             <input
               type="text"
               name="fullName"
               value={form.fullName}
               onChange={handleChange}
-              className="w-full p-3 rounded-lg border"
+              className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -147,11 +159,13 @@ export default function Registration() {
             onChange={handleChange}
           />
 
-          <h2 className="text-lg font-semibold text-[#d4a373] mt-4">
+          {/* ADDRESS SECTION */}
+          <h2 className="text-lg font-bold text-blue-600 mt-6 border-l-4 border-red-500 pl-3">
             Address
           </h2>
 
           <div className="grid md:grid-cols-2 gap-3">
+
             <InputField label="Street" name="street" value={form.address.street} required onChange={handleChange} />
             <InputField label="City" name="city" value={form.address.city} required onChange={handleChange} />
             <InputField label="State" name="state" value={form.address.state} onChange={handleChange} />
@@ -160,26 +174,38 @@ export default function Registration() {
             <div className="md:col-span-2">
               <InputField label="Country" name="country" value={form.address.country} required onChange={handleChange} />
             </div>
+
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {/* ERROR */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
+              {error}
+            </div>
+          )}
 
+          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#d4a373] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg transition disabled:opacity-50"
           >
             {loading ? "Registering..." : "Register"}
           </button>
 
         </form>
 
-        <p className="text-center mt-6 text-sm">
+        {/* LOGIN LINK */}
+        <p className="text-center mt-6 text-sm text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="text-[#d4a373] font-semibold hover:underline">
+          <Link
+            to="/login"
+            className="text-red-500 font-semibold hover:text-red-600 transition"
+          >
             Login
           </Link>
         </p>
+
       </div>
     </div>
   );

@@ -26,20 +26,20 @@ export default function PenaltyHistory() {
     <div className="space-y-5">
 
       {/* HEADER */}
-      <div className="bg-white p-4 rounded-xl shadow">
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-red-500 p-4 rounded-xl shadow text-white">
         <h2 className="text-xl font-bold">Penalty History</h2>
       </div>
 
       {/* TABLE */}
-      <div className="bg-white p-4 rounded-xl shadow overflow-x-auto">
+      <div className="bg-white p-4 rounded-xl shadow overflow-x-auto border-l-4 border-blue-600">
 
         {loading ? (
-          <p>Loading...</p>
+          <p className="text-blue-600">Loading...</p>
         ) : (
           <table className="w-full text-sm">
 
             <thead>
-              <tr className="text-left border-b">
+              <tr className="text-left border-b bg-blue-50">
                 <th>User</th>
                 <th>Book</th>
                 <th>Overdue Days</th>
@@ -50,9 +50,11 @@ export default function PenaltyHistory() {
 
             <tbody>
               {logs.map((log) => (
-                <tr key={log._id} className="border-b">
+                <tr key={log._id} className="border-b hover:bg-blue-50/40">
 
-                  <td>{log.user?.username}</td>
+                  <td className="py-2 font-medium text-blue-700">
+                    {log.user?.username}
+                  </td>
 
                   <td>{log.borrow?.book?.title}</td>
 
@@ -62,9 +64,11 @@ export default function PenaltyHistory() {
                     </span>
                   </td>
 
-                  <td>₱{log.fineApplied}</td>
+                  <td className="text-blue-700 font-semibold">
+                    ₱{log.fineApplied}
+                  </td>
 
-                  <td>
+                  <td className="text-gray-600">
                     {new Date(log.createdAt).toLocaleDateString()}
                   </td>
 

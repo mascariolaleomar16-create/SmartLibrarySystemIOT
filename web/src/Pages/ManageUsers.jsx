@@ -72,27 +72,27 @@ export default function ManageUsers() {
     <div className="space-y-5">
 
       {/* HEADER */}
-      <div className="bg-white p-4 rounded-xl shadow flex justify-between items-center">
-        <h2 className="text-xl font-bold text-[#606c38]">Manage Users</h2>
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-red-500 p-4 rounded-xl shadow flex justify-between items-center text-white">
+        <h2 className="text-xl font-bold">Manage Users</h2>
 
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search user..."
-          className="border px-3 py-2 rounded-lg w-64"
+          className="border px-3 py-2 rounded-lg w-64 text-black focus:ring-2 focus:ring-red-400 outline-none"
         />
       </div>
 
       {/* TABLE */}
-      <div className="bg-white p-4 rounded-xl shadow overflow-x-auto">
+      <div className="bg-white p-4 rounded-xl shadow overflow-x-auto border-l-4 border-blue-600">
 
         {loading ? (
-          <p>Loading users...</p>
+          <p className="text-blue-600">Loading users...</p>
         ) : (
           <table className="w-full text-sm">
 
             <thead>
-              <tr className="text-left border-b">
+              <tr className="text-left border-b bg-blue-50">
                 <th>Name</th>
                 <th>Email</th>
                 <th>Status</th>
@@ -106,10 +106,10 @@ export default function ManageUsers() {
 
             <tbody>
               {filtered.map((u) => (
-                <tr key={u._id} className="border-b">
+                <tr key={u._id} className="border-b hover:bg-blue-50/40">
 
                   <td
-                    className="py-2 cursor-pointer text-blue-700 hover:underline"
+                    className="py-2 cursor-pointer text-blue-700 hover:text-red-600 hover:underline"
                     onClick={() => openUser(u._id)}
                   >
                     {u.username}
@@ -117,14 +117,13 @@ export default function ManageUsers() {
 
                   <td>{u.email}</td>
 
-                  {/* STATUS */}
                   <td>
                     {u.banned ? (
                       <span className="text-red-600 font-semibold">
                         Banned
                       </span>
                     ) : (
-                      <span className="text-green-600 font-semibold">
+                      <span className="text-blue-600 font-semibold">
                         Active
                       </span>
                     )}
@@ -138,21 +137,21 @@ export default function ManageUsers() {
                       className={
                         u.stats?.overdue > 0
                           ? "text-red-500 font-semibold"
-                          : ""
+                          : "text-blue-600"
                       }
                     >
                       {u.stats?.overdue || 0}
                     </span>
                   </td>
 
-                  <td>₱{u.stats?.totalFine || 0}</td>
+                  <td className="text-blue-700">₱{u.stats?.totalFine || 0}</td>
 
                   <td>
                     <button
                       onClick={() => toggleBan(u._id, u.banned)}
                       className={`px-3 py-1 rounded text-white text-xs ${
                         u.banned
-                          ? "bg-green-600 hover:bg-green-700"
+                          ? "bg-blue-600 hover:bg-blue-700"
                           : "bg-red-600 hover:bg-red-700"
                       }`}
                     >
@@ -168,42 +167,37 @@ export default function ManageUsers() {
         )}
       </div>
 
-      {/* =========================
-          DRAWER
-      ========================= */}
+      {/* DRAWER */}
       {drawerOpen && userDetail && (
         <div className="fixed inset-0 bg-black/40 flex justify-end z-50">
 
-          <div className="w-full md:w-[440px] bg-[#fefae0] h-full p-5 overflow-y-auto border-l-4 border-[#606c38]">
+          <div className="w-full md:w-[440px] bg-gradient-to-b from-blue-50 via-white to-red-50 h-full p-5 overflow-y-auto border-l-4 border-blue-600">
 
-            {/* HEADER */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-[#606c38]">
+              <h2 className="text-lg font-bold text-blue-700">
                 User Details
               </h2>
 
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="text-[#606c38] hover:text-red-600"
+                className="text-blue-700 hover:text-red-600 text-xl"
               >
                 ✕
               </button>
             </div>
 
-            {/* USER INFO */}
             <div className="space-y-1 border-b pb-3">
               <p className="font-bold">{userDetail.fullName}</p>
               <p className="text-sm text-gray-600">{userDetail.email}</p>
 
               <p className="text-xs">
                 Status:{" "}
-                <span className={userDetail.banned ? "text-red-600" : "text-green-600"}>
+                <span className={userDetail.banned ? "text-red-600" : "text-blue-600"}>
                   {userDetail.banned ? "Banned" : "Active"}
                 </span>
               </p>
             </div>
 
-            {/* STATS */}
             <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
 
               <Stat label="Total Borrowed" value={userDetail.stats?.totalBorrowed} />
@@ -213,11 +207,8 @@ export default function ManageUsers() {
 
             </div>
 
-            {/* =========================
-                BORROW HISTORY (IMPROVED)
-            ========================= */}
             <div className="mt-5">
-              <h3 className="font-semibold mb-2 text-[#606c38]">
+              <h3 className="font-semibold mb-2 text-blue-700">
                 Borrow History
               </h3>
 
@@ -234,17 +225,15 @@ export default function ManageUsers() {
                   return (
                     <div
                       key={b._id}
-                      className="flex gap-3 p-2 rounded-lg border bg-white"
+                      className="flex gap-3 p-2 rounded-lg border bg-white hover:border-red-300"
                     >
 
-                      {/* BOOK THUMBNAIL */}
                       <img
                         src={b.book?.image?.url || "/default-book.jpg"}
                         className="w-12 h-16 object-cover rounded"
                         alt={b.book?.title}
                       />
 
-                      {/* INFO */}
                       <div className="flex-1">
 
                         <p className="font-medium text-sm">
@@ -255,11 +244,10 @@ export default function ManageUsers() {
                           Due: {new Date(b.dueDate).toLocaleDateString()}
                         </p>
 
-                        {/* STATUS BADGE */}
                         <div className="mt-1">
 
                           {isReturned && (
-                            <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
+                            <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">
                               Returned
                             </span>
                           )}
@@ -271,7 +259,7 @@ export default function ManageUsers() {
                           )}
 
                           {!isReturned && !isOverdue && (
-                            <span className="text-xs px-2 py-1 rounded bg-[#fefae0] text-[#606c38]">
+                            <span className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700">
                               Currently with user
                             </span>
                           )}
@@ -293,14 +281,11 @@ export default function ManageUsers() {
   );
 }
 
-/* =========================
-   STATS COMPONENT
-========================= */
 function Stat({ label, value }) {
   return (
-    <div className="bg-white border border-[#606c38]/20 p-2 rounded-lg text-center">
+    <div className="bg-white border border-blue-200 p-2 rounded-lg text-center">
       <p className="text-xs text-gray-500">{label}</p>
-      <p className="font-bold text-[#606c38]">{value || 0}</p>
+      <p className="font-bold text-blue-700">{value || 0}</p>
     </div>
   );
 }

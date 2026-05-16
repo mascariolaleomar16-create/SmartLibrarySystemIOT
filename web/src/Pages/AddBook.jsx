@@ -30,7 +30,6 @@ export default function AddBook() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
-  //RFID LISTENER (ONLY WHEN SCANNING)
   useEffect(() => {
     if (!scanning) return;
 
@@ -50,12 +49,10 @@ export default function AddBook() {
     return () => socket.off("rfid-scan", handler);
   }, [scanning]);
 
-  //INPUT HANDLER
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  //IMAGE HANDLER
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -64,25 +61,21 @@ export default function AddBook() {
     setPreview(URL.createObjectURL(file));
   };
 
-  //START SCAN
   const startScan = async () => {
     await axios.post(`${API_URL}/scan/start`);
     setScanning(true);
     setMessage("Scanner started...");
   };
 
-  //STOP SCAN
   const stopScan = async () => {
     await axios.post(`${API_URL}/scan/stop`);
     setScanning(false);
     setMessage("Scanner stopped");
   };
 
-  //SUBMIT (RFID SAFE)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    //BLOCK EMPTY RFID
     if (!form.rfidTag) {
       setMessage("Please scan RFID before adding the book.");
       return;
@@ -99,14 +92,12 @@ export default function AddBook() {
     try {
       const data = new FormData();
 
-      //ONLY SEND NON-EMPTY VALUES
       Object.entries(form).forEach(([key, value]) => {
         if (value !== "" && value !== null && value !== undefined) {
           data.append(key, value);
         }
       });
 
-      //IMAGE
       if (imageFile) {
         data.append("image", imageFile);
       }
@@ -115,16 +106,13 @@ export default function AddBook() {
         `${API_URL}/books/create`,
         data,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         }
       );
 
       setMessage(res.data.message);
 
-      //RESET FORM
       setForm({
         title: "",
         author: "",
@@ -137,7 +125,6 @@ export default function AddBook() {
 
       setImageFile(null);
       setPreview(null);
-
     } catch (err) {
       setMessage(err.response?.data?.message || "Error creating book");
     } finally {
@@ -149,15 +136,17 @@ export default function AddBook() {
     <div className="max-w-6xl mx-auto space-y-6">
 
       {/* HEADER */}
-      <div className="bg-white p-5 rounded-2xl shadow">
+      <div className="bg-blue-600 text-white p-5 rounded-2xl shadow relative">
+        <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
         <h2 className="text-xl font-bold flex items-center gap-2">
           <FiPlusCircle /> Add Book
         </h2>
       </div>
 
       {/* RFID CONTROL */}
-      <div className="bg-white p-5 rounded-2xl shadow flex justify-between items-center">
-        <div className="flex items-center gap-2">
+      <div className="bg-white p-5 rounded-2xl shadow flex justify-between items-center border border-blue-100">
+
+        <div className="flex items-center gap-2 text-blue-700">
           <FiWifi />
           <span className="font-medium">
             RFID: {scanning ? "Active" : "Stopped"}
@@ -165,9 +154,10 @@ export default function AddBook() {
         </div>
 
         <div className="flex gap-3">
+
           <button
             onClick={startScan}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2"
           >
             <FiPlay /> Start
           </button>
@@ -178,16 +168,18 @@ export default function AddBook() {
           >
             <FiSquare /> Stop
           </button>
+
         </div>
+
       </div>
 
       {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-2xl shadow grid grid-cols-1 md:grid-cols-3 gap-6"
+        className="bg-white p-6 rounded-2xl shadow grid grid-cols-1 md:grid-cols-3 gap-6 border border-blue-100"
       >
 
-        {/* LEFT SIDE */}
+        {/* LEFT */}
         <div className="md:col-span-2 space-y-4">
 
           <input
@@ -195,7 +187,7 @@ export default function AddBook() {
             placeholder="Title *"
             value={form.title}
             onChange={handleChange}
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
 
           <input
@@ -203,13 +195,13 @@ export default function AddBook() {
             placeholder="Author *"
             value={form.author}
             onChange={handleChange}
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
 
           <input
             value={form.rfidTag}
             placeholder="RFID (scan required)"
-            className="w-full p-2 border rounded-lg bg-gray-100"
+            className="w-full p-2 border border-red-200 rounded-lg bg-gray-100"
             readOnly
           />
 
@@ -218,16 +210,17 @@ export default function AddBook() {
             placeholder="ISBN"
             value={form.isbn}
             onChange={handleChange}
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border border-blue-200 rounded-lg"
           />
 
           <div className="grid grid-cols-2 gap-4">
+
             <input
               name="category"
               placeholder="Category"
               value={form.category}
               onChange={handleChange}
-              className="w-full p-2 border rounded-lg"
+              className="w-full p-2 border border-blue-200 rounded-lg"
             />
 
             <input
@@ -235,8 +228,9 @@ export default function AddBook() {
               placeholder="Shelf"
               value={form.shelfNumber}
               onChange={handleChange}
-              className="w-full p-2 border rounded-lg"
+              className="w-full p-2 border border-blue-200 rounded-lg"
             />
+
           </div>
 
           <textarea
@@ -245,29 +239,29 @@ export default function AddBook() {
             value={form.description}
             onChange={handleChange}
             rows="4"
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border border-blue-200 rounded-lg"
           />
 
           <button
             type="submit"
             disabled={loading || !form.rfidTag}
-            className="w-full bg-[#283618] text-white py-3 rounded-xl disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl disabled:opacity-50 hover:bg-blue-700 transition"
           >
             {loading ? "Saving..." : "Add Book"}
           </button>
 
           {message && (
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-red-500">
               {message}
             </p>
           )}
 
         </div>
 
-        {/* RIGHT SIDE (IMAGE ONLY) */}
+        {/* RIGHT */}
         <div className="space-y-3">
 
-          <label className="flex items-center gap-2 text-sm font-medium">
+          <label className="flex items-center gap-2 text-sm font-medium text-blue-700">
             <FiImage /> Book Cover
           </label>
 
@@ -277,7 +271,7 @@ export default function AddBook() {
             onChange={handleImage}
           />
 
-          <div className="w-full h-80 border rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+          <div className="w-full h-80 border border-blue-100 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
 
             {preview ? (
               <img

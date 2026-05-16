@@ -27,13 +27,16 @@ export default function BorrowedBookCard({ borrow }) {
     dueDate <= tomorrow;
 
   return (
-    <div className="bg-[#606c38] text-white rounded-2xl shadow-md p-4 flex gap-4 hover:shadow-lg transition hover:scale-[1.02] overflow-hidden">
+    <div className="bg-blue-600 text-white rounded-2xl shadow-md p-4 flex gap-4 hover:shadow-lg transition hover:scale-[1.02] overflow-hidden relative">
+
+      {/* RED ACCENT BAR */}
+      <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
 
       {/* BOOK COVER */}
       <img
         src={book.image?.url || "/default-book.jpg"}
         alt={book.title}
-        className="w-20 h-28 object-cover rounded-lg border border-[#a3b18a] flex-shrink-0"
+        className="w-20 h-28 object-cover rounded-lg border border-red-300 flex-shrink-0"
       />
 
       {/* INFO */}
@@ -41,67 +44,49 @@ export default function BorrowedBookCard({ borrow }) {
 
         <div className="min-w-0">
 
-          {/* TITLE WITH PING-PONG HOVER */}
-          <div className="relative w-full overflow-hidden group">
+          <h3 className="font-semibold text-lg text-white truncate">
+            {book.title}
+          </h3>
 
-            {/* STATIC TITLE */}
-            <h3 className="font-semibold text-lg text-white truncate group-hover:opacity-0 transition-opacity duration-150">
-              {book.title}
-            </h3>
-
-            {/* HOVER ANIMATION TITLE */}
-            <div className="absolute top-0 left-0 w-full overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-              <div className="whitespace-nowrap animate-marquee-pingpong text-lg font-semibold text-white">
-                {book.title}
-              </div>
-            </div>
-
-          </div>
-
-          <p className="text-sm text-[#e9edc9] truncate">
+          <p className="text-sm text-blue-100 truncate">
             by {book.author}
           </p>
 
-          <p className="text-xs text-[#d4d4d4] mt-1 truncate">
+          <p className="text-xs text-blue-200 mt-1 truncate">
             ISBN: {book.isbn || "N/A"}
           </p>
 
-          <p className="text-xs text-[#a3b18a] mt-1 font-medium truncate">
+          <p className="text-xs text-red-200 mt-1 font-medium truncate">
             Shelf: {book.shelfNumber || "Unassigned"}
           </p>
 
         </div>
 
-        {/* BOTTOM SECTION */}
         <div className="mt-3 space-y-2">
 
-          {/* DUE DATE */}
           <div className="flex items-center gap-2 text-xs">
             <FiClock />
             <span>
               Due:{" "}
-              {dueDate
-                ? dueDate.toLocaleDateString()
-                : "N/A"}
+              {dueDate ? dueDate.toLocaleDateString() : "N/A"}
             </span>
           </div>
 
-          {/* CATEGORY + STATUS */}
           <div className="flex justify-between items-center">
 
-            <span className="text-xs bg-[#a3b18a] text-[#283618] px-2 py-1 rounded-full font-medium">
+            <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-medium border border-red-300">
               {book.category}
             </span>
 
             <span
               className={`text-xs px-2 py-1 rounded-full font-semibold ${
                 isReturned
-                  ? "bg-[#e9edc9] text-[#283618]"
+                  ? "bg-blue-200 text-blue-900"
                   : isOverdue
                   ? "bg-red-200 text-red-700"
                   : isDueSoon
                   ? "bg-yellow-200 text-yellow-800"
-                  : "bg-green-100 text-green-800"
+                  : "bg-blue-100 text-blue-900"
               }`}
             >
               {isReturned
@@ -115,7 +100,6 @@ export default function BorrowedBookCard({ borrow }) {
 
           </div>
 
-          {/* STATUS ICON */}
           <div className="flex items-center gap-2 text-xs font-semibold">
 
             {isReturned ? (
@@ -136,7 +120,7 @@ export default function BorrowedBookCard({ borrow }) {
             ) : (
               <>
                 <FiCheckCircle />
-                <span className="text-[#e9edc9]">On Time</span>
+                <span className="text-blue-100">On Time</span>
               </>
             )}
 

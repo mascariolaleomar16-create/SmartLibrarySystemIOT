@@ -10,11 +10,9 @@ export default function LibraryCatalogue() {
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [search, setSearch] = useState("");
 
-  // ✅ Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const booksPerPage = 6;
 
-  // Fetch books
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -29,8 +27,6 @@ export default function LibraryCatalogue() {
     fetchBooks();
   }, []);
 
-
-  // Search filter
   useEffect(() => {
     const searchLower = search.toLowerCase();
 
@@ -44,10 +40,9 @@ export default function LibraryCatalogue() {
     });
 
     setFilteredBooks(filtered);
-    setCurrentPage(1); // ✅ reset page when searching
+    setCurrentPage(1);
   }, [search, books]);
 
-  // ✅ Pagination logic
   const indexOfLast = currentPage * booksPerPage;
   const indexOfFirst = indexOfLast - booksPerPage;
   const currentBooks = filteredBooks.slice(indexOfFirst, indexOfLast);
@@ -55,48 +50,79 @@ export default function LibraryCatalogue() {
   const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
 
   return (
-    <div className="bg-white p-5 rounded-2xl shadow space-y-4">
+    <div className="bg-white p-6 rounded-2xl shadow-md border border-blue-100 space-y-5">
 
-      <h2 className="text-lg font-semibold">Search Library</h2>
+      {/* HEADER */}
+      <div className="border-l-4 border-red-500 pl-3">
+        <h2 className="text-xl font-bold text-blue-600">
+          Library Catalogue
+        </h2>
 
-      <p className="text-[#606c38] font-medium">
-        Search for books in the library by title, author, or ISBN
-      </p>
+        <p className="text-gray-500 text-sm mt-1">
+          Search for books by title, author, ISBN, or category
+        </p>
+      </div>
 
-      {/* Search */}
-      <SearchBar search={search} setSearch={setSearch} />
+      {/* SEARCH */}
+      <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+        <SearchBar search={search} setSearch={setSearch} />
+      </div>
 
-      {/* Book List */}
+      {/* RESULTS INFO */}
+      <div className="flex justify-between items-center text-sm text-gray-500">
+        <span>
+          Total Results:{" "}
+          <span className="text-blue-600 font-semibold">
+            {filteredBooks.length}
+          </span>
+        </span>
+
+        <span>
+          Page{" "}
+          <span className="text-red-500 font-semibold">
+            {currentPage}
+          </span>{" "}
+          of {totalPages}
+        </span>
+      </div>
+
+      {/* BOOK LIST */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
         {currentBooks.length > 0 ? (
           currentBooks.map((book) => (
             <BookCard key={book._id} book={book} />
           ))
         ) : (
-          <p className="text-gray-500">No books found.</p>
+          <div className="col-span-full text-center py-10 text-gray-500">
+            <span className="text-red-500 font-semibold">
+              No books found
+            </span>
+          </div>
         )}
+
       </div>
 
-      {/* ✅ Pagination Controls */}
+      {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-3 mt-4">
+        <div className="flex justify-center items-center gap-3 pt-4">
 
           <button
             onClick={() => setCurrentPage((prev) => prev - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold disabled:opacity-40 hover:bg-blue-200 transition"
           >
             Prev
           </button>
 
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
+          <div className="px-4 py-2 rounded-lg bg-white border border-blue-200 text-sm">
+            Page {currentPage} / {totalPages}
+          </div>
 
           <button
             onClick={() => setCurrentPage((prev) => prev + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-red-100 text-red-600 font-semibold disabled:opacity-40 hover:bg-red-200 transition"
           >
             Next
           </button>

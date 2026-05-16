@@ -1,38 +1,40 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // adjust path if needed
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar() {
   const { user, isAdmin, loading } = useAuth();
 
   const linkClass = ({ isActive }) =>
-    `p-2 rounded transition block ${
-      isActive ? "bg-[#283618] text-white" : "hover:bg-[#283618]"
+    `p-2 rounded-lg transition block font-medium ${
+      isActive
+        ? "bg-white text-blue-700 font-bold shadow border-l-4 border-red-500"
+        : "hover:bg-white/10 text-white"
     }`;
 
-  // optional loading state (prevents flicker)
   if (loading) {
     return (
-      <aside className="w-64 bg-[#606c38] text-white p-5 hidden md:block">
-        <p>Loading...</p>
+      <aside className="w-64 bg-gradient-to-b from-blue-700 to-blue-900 text-white p-5 hidden md:block">
+        <p className="text-white/70">Loading...</p>
       </aside>
     );
   }
 
   return (
-    <aside className="w-64 bg-[#606c38] text-white p-5 space-y-2 hidden md:block">
-      
-      {/* USER INFO (optional but nice) */}
+    <aside className="w-64 bg-gradient-to-b from-blue-700 via-blue-800 to-blue-900 text-white p-5 space-y-2 hidden md:block shadow-xl">
+
+      {/* USER INFO */}
       <div className="mb-4">
-        <p className="text-sm font-semibold">
+        <p className="text-sm font-semibold text-white">
           {user?.fullName || "User"}
         </p>
+
         <p className="text-xs text-white/70">
-          {isAdmin ? "Admin" : "Basic User"}
+          {isAdmin ? "Admin Access" : "Basic User"}
         </p>
       </div>
 
-      <hr className="border-white/30 mb-2" />
+      <hr className="border-white/20 mb-2" />
 
       {/* GENERAL LINKS */}
       <NavLink to="/dashboard" className={linkClass}>
@@ -55,13 +57,13 @@ export default function Sidebar() {
         Notifications
       </NavLink>
 
-      {/* 🔥 ADMIN SECTION */}
+      {/* ADMIN SECTION */}
       {isAdmin && (
         <>
-          <hr className="my-3 border-white/30" />
+          <hr className="my-3 border-white/20" />
 
-          <p className="text-xs uppercase text-white/70 tracking-wide">
-            Admin
+          <p className="text-xs uppercase tracking-wider text-white/70 font-bold">
+            Admin Panel
           </p>
 
           <NavLink to="/dashboard/borrow-return-manager" className={linkClass}>

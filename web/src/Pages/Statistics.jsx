@@ -46,42 +46,42 @@ export default function Statistics() {
       </div>
 
       {/* BORROW TREND */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-3">Borrow Trend</h2>
+      <div className="bg-white p-4 rounded-xl shadow border border-blue-100">
+        <h2 className="font-semibold mb-3 text-blue-700">Borrow Trend</h2>
 
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={trend}>
             <XAxis dataKey="_id" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="count" stroke="#606c38" />
+            <Line type="monotone" dataKey="count" stroke="#2563eb" />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* MOST BORROWED */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-3">Most Borrowed Books</h2>
+      <div className="bg-white p-4 rounded-xl shadow border border-blue-100">
+        <h2 className="font-semibold mb-3 text-blue-700">Most Borrowed Books</h2>
 
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={mostBorrowed}>
             <XAxis dataKey="book.title" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="count" fill="#606c38" />
+            <Bar dataKey="count" fill="#2563eb" />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* OVERDUE LIST */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-3">Overdue Books</h2>
+      <div className="bg-white p-4 rounded-xl shadow border border-red-100">
+        <h2 className="font-semibold mb-3 text-red-600">Overdue Books</h2>
 
         <div className="space-y-2">
           {overdue.map((b) => (
             <div key={b._id} className="flex justify-between text-sm border-b py-2">
-              <span>{b.book?.title}</span>
-              <span className="text-red-500">
+              <span className="text-gray-700">{b.book?.title}</span>
+              <span className="text-red-500 font-medium">
                 {b.user?.username}
               </span>
             </div>
@@ -98,9 +98,9 @@ export default function Statistics() {
 ========================= */
 function Card({ title, value }) {
   return (
-    <div className="bg-white p-4 rounded-xl shadow text-center">
+    <div className="bg-white p-4 rounded-xl shadow text-center border border-blue-100">
       <p className="text-gray-500 text-sm">{title}</p>
-      <h2 className="text-xl font-bold text-[#606c38]">{value || 0}</h2>
+      <h2 className="text-xl font-bold text-blue-600">{value || 0}</h2>
     </div>
   );
 }

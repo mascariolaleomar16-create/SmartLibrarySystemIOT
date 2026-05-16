@@ -21,7 +21,7 @@ export default function RFIDScan() {
 
   useEffect(() => {
     socket.on("rfid-scan", async (data) => {
-      const cleanedRFID = data?.toString().trim(); // 🔥 FIX
+      const cleanedRFID = data?.toString().trim();
 
       setUid(cleanedRFID);
       setLoading(true);
@@ -66,31 +66,39 @@ export default function RFIDScan() {
     <div className="space-y-6">
 
       {/* HEADER */}
-      <div className="bg-white p-5 rounded-2xl shadow">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <FiBookOpen /> RFID Scanner
+      <div className="bg-white p-6 rounded-2xl shadow-md border border-blue-100 relative overflow-hidden">
+
+        <div className="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
+
+        <h2 className="text-xl font-bold flex items-center gap-2 text-blue-600">
+          <FiBookOpen />
+          RFID Scanner
         </h2>
-        <p className="text-[#606c38] font-medium">
+
+        <p className="text-gray-500 mt-1">
           Scan a book using RFID to view details
         </p>
       </div>
 
       {/* CONTROLS */}
-      <div className="bg-white p-5 rounded-2xl shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-white p-6 rounded-2xl shadow-md border border-blue-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
+        {/* STATUS */}
         <div
-          className={`px-4 py-1 rounded-full text-xs font-semibold text-white shadow flex items-center gap-2 w-fit ${
-            scanning ? "bg-green-600" : "bg-red-500"
+          className={`px-4 py-2 rounded-full text-xs font-semibold text-white shadow flex items-center gap-2 w-fit ${
+            scanning ? "bg-blue-600" : "bg-red-500"
           }`}
         >
           {scanning ? <FiCheckCircle /> : <FiXCircle />}
-          {scanning ? "Scanning Active" : "Scanner Stopped"}
+          {scanning ? "Scanner Active" : "Scanner Stopped"}
         </div>
 
+        {/* BUTTONS */}
         <div className="flex gap-4">
+
           <button
             onClick={startScan}
-            className="flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-xl font-semibold shadow hover:bg-green-700 transition"
+            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
           >
             <FiPlay />
             Start
@@ -103,11 +111,12 @@ export default function RFIDScan() {
             <FiSquare />
             Stop
           </button>
+
         </div>
       </div>
 
       {/* RESULT */}
-      <div className="bg-white p-6 rounded-2xl shadow">
+      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
 
         {!scanning ? (
           <p className="text-center text-gray-500">
@@ -115,7 +124,7 @@ export default function RFIDScan() {
           </p>
 
         ) : loading ? (
-          <p className="text-center text-gray-500 animate-pulse">
+          <p className="text-center text-blue-500 animate-pulse">
             Fetching book data...
           </p>
 
@@ -123,7 +132,6 @@ export default function RFIDScan() {
           book ? (
             <div className="flex flex-col items-center text-center">
 
-              {/* IMAGE */}
               {book.image?.url && (
                 <img
                   src={book.image.url}
@@ -132,7 +140,6 @@ export default function RFIDScan() {
                 />
               )}
 
-              {/* TITLE */}
               <h3 className="text-lg font-bold text-gray-800">
                 {book.title}
               </h3>
@@ -141,19 +148,17 @@ export default function RFIDScan() {
                 {book.author}
               </p>
 
-              {/* RFID */}
               <p className="text-xs text-gray-400 mb-2">
                 RFID: {uid}
               </p>
 
-              {/* CATEGORY + SHELF */}
               <div className="flex gap-2 mb-3 flex-wrap justify-center">
 
-                <span className="text-xs bg-[#606c38] text-white px-3 py-1 rounded-full">
+                <span className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full">
                   {book.category}
                 </span>
 
-                <span className="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full flex items-center gap-1">
                   <FiMapPin />
                   Shelf: {book.shelfNumber}
                 </span>
@@ -164,7 +169,7 @@ export default function RFIDScan() {
               <span
                 className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold mb-3 ${
                   isAvailable
-                    ? "bg-green-100 text-green-700"
+                    ? "bg-blue-100 text-blue-700"
                     : "bg-red-100 text-red-600"
                 }`}
               >
@@ -172,7 +177,6 @@ export default function RFIDScan() {
                 {isAvailable ? "Available" : "Borrowed"}
               </span>
 
-              {/* DESCRIPTION */}
               {book.description && (
                 <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-5 rounded-lg border text-justify leading-relaxed">
                   {book.description}
@@ -185,6 +189,7 @@ export default function RFIDScan() {
               <p className="text-sm text-gray-400 mb-2">
                 RFID: {uid}
               </p>
+
               <p className="text-red-500 font-semibold flex items-center justify-center gap-1">
                 <FiXCircle /> Book not found
               </p>

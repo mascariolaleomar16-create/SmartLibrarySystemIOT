@@ -7,7 +7,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
 
-  // 🔥 GLOBAL AUTH (no local fetch needed)
   const { user, loading, setUser, fetchUser } = useAuth();
 
   const handleLogout = async () => {
@@ -17,8 +16,10 @@ export default function Navbar() {
         {},
         { withCredentials: true }
       );
+
       await fetchUser();
-      // 🔥 instantly clear global auth state
+
+      // instantly clear global auth state
       setUser(null);
 
       navigate("/login");
@@ -28,7 +29,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-[#d4a373] py-4 shadow-md">
+    <nav className="w-full bg-blue-600 py-4 shadow-md border-b border-blue-700">
       <div className="flex items-center justify-between px-6">
 
         {/* LEFT: Logo */}
@@ -38,26 +39,27 @@ export default function Navbar() {
             alt="BookFlow Logo"
             className="h-10 w-10 object-contain"
           />
-          <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">
+
+          <h1 className="text-xl md:text-2xl font-extrabold text-white tracking-wide">
             BookFlow
           </h1>
         </div>
 
         {/* RIGHT: Auth Section */}
-        <div className="flex items-center gap-4 text-white text-sm">
+        <div className="flex items-center gap-4 text-sm">
 
           {loading ? (
-            <span>Loading...</span>
+            <span className="text-blue-100">Loading...</span>
           ) : user ? (
             <>
               {/* Logged in */}
-              <span className="hidden md:block font-bold uppercase tracking-wide">
+              <span className="hidden md:block font-bold uppercase tracking-wide text-white">
                 {user.username}
               </span>
 
               <button
                 onClick={handleLogout}
-                className="bg-white text-[#d4a373] px-3 py-1 rounded-md font-semibold hover:opacity-90 transition"
+                className="bg-red-500 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-red-600 transition"
               >
                 Logout
               </button>
@@ -67,14 +69,14 @@ export default function Navbar() {
               {/* Not logged in */}
               <Link
                 to="/login"
-                className="bg-white text-[#d4a373] px-3 py-1 rounded-md font-semibold hover:opacity-90 transition"
+                className="bg-white text-blue-600 px-4 py-2 rounded-xl font-semibold shadow hover:bg-blue-50 transition"
               >
                 Login
               </Link>
 
               <Link
                 to="/register"
-                className="border border-white px-3 py-1 rounded-md hover:bg-white hover:text-[#d4a373] transition"
+                className="border-2 border-white text-white px-4 py-2 rounded-xl font-semibold hover:bg-white hover:text-blue-600 transition"
               >
                 Register
               </Link>
