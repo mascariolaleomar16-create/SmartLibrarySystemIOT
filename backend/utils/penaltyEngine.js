@@ -1,6 +1,7 @@
 import { Borrow } from "../models/Borrow.js";
 import { User } from "../models/User.js";
 import { PenaltyLog } from "../models/PenaltyLog.js";
+import Notification from "../models/Notification.js";
 
 const FINE_PER_DAY = 10;
 const BAN_THRESHOLD = 200;
@@ -24,62 +25,90 @@ export const runPenaltySystem = async () => {
 
     const activeBorrows = await Borrow.find({
       returned: false,
-    }).populate("user");
+    }).populate("user book");
 
     for (const borrow of activeBorrows) {
-      const overdueDays = getOverdueDays(borrow.dueDate);
+      try {
+        const user = borrow.user;
 
-      if (overdueDays <= 0) continue;
+        const overdueDays = getOverdueDays(borrow.dueDate);
+        if (overdueDays <= 0) continue;
 
-      // 🛡️ SAFETY CHECK: already processed today
-      const last = borrow.lastPenaltyDate
-        ? new Date(borrow.lastPenaltyDate)
-        : null;
+        /* =========================
+           SKIP IF ALREADY PROCESSED TODAY
+        ========================= */
+        const last = borrow.lastPenaltyDate
+          ? new Date(borrow.lastPenaltyDate)
+          : null;
 
-      if (last && last >= today) {
-        continue; // already processed today
+        if (last && last >= today) continue;
+
+        /* =========================
+           CALCULATE FINE (TOTAL)
+        ========================= */
+        const newFine = overdueDays * FINE_PER_DAY;
+
+        borrow.fine = newFine;
+        borrow.status = "overdue";
+        borrow.lastPenaltyDate = new Date();
+
+        await borrow.save();
+
+        /* =========================
+           PENALTY LOG (FIXED)
+        ========================= */
+        await PenaltyLog.create({
+          user: user._id,
+          borrow: borrow._id,
+          overdueDays,
+          fineApplied: newFine,
+          reason: "Auto overdue penalty",
+        });
+
+        /* =========================
+           USER TOTAL FINE RECALC
+        ========================= */
+        const userBorrows = await Borrow.find({ user: user._id });
+
+        const totalFine = userBorrows.reduce(
+          (sum, b) => sum + (b.fine || 0),
+          0
+        );
+
+        user.fineAmount = totalFine;
+
+        /* =========================
+           AUTO BAN CHECK
+        ========================= */
+        if (totalFine >= BAN_THRESHOLD) {
+          user.banned = true;
+
+          await Notification.create({
+            userId: user._id,
+            title: "Account Banned",
+            message: "You have been banned due to excessive penalties.",
+            type: "ban",
+          });
+        }
+
+        await user.save();
+
+        /* =========================
+           PENALTY NOTIFICATION
+        ========================= */
+        await Notification.create({
+          userId: user._id,
+          title: "Overdue Penalty Applied",
+          message: `You have been charged ₱${newFine} for overdue book: "${borrow.book.title}".`,
+          type: "penalty",
+        });
+
+      } catch (innerErr) {
+        console.error("Borrow penalty error:", innerErr);
       }
-
-      // 💸 CALCULATE TOTAL FINE (NOT incremental)
-      const newFine = overdueDays * FINE_PER_DAY;
-
-      borrow.fine = newFine;
-      borrow.status = "overdue";
-      borrow.lastPenaltyDate = new Date();
-
-      await borrow.save();
-
-      //LOG PENALTY
-    await PenaltyLog.create({
-        user: user._id,
-        borrow: borrow._id,
-        overdueDays,
-        fineApplied: newFine,
-        reason: "Auto overdue penalty",
-    });
-
-      // 👤 USER UPDATE (SAFE SET, NOT ADDITION)
-      const user = borrow.user;
-
-      // recompute total fines from all borrows
-      const userBorrows = await Borrow.find({ user: user._id });
-
-      const totalFine = userBorrows.reduce(
-        (sum, b) => sum + (b.fine || 0),
-        0
-      );
-
-      user.fineAmount = totalFine;
-
-      // 🚫 AUTO BAN
-      if (totalFine >= BAN_THRESHOLD) {
-        user.banned = true;
-      }
-
-      await user.save();
     }
 
-    console.log("Safe penalty system executed");
+    console.log("Penalty system executed successfully");
 
   } catch (err) {
     console.error("Penalty system error:", err);

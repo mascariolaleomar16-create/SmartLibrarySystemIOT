@@ -1,7 +1,12 @@
 import { Borrow } from "../models/Borrow.js";
 import { Book } from "../models/Book.js";
 import { User } from "../models/User.js";
+import Notification from "../models/Notification.js";
+import { PenaltyLog } from "../models/PenaltyLog.js";
 
+const BORROW_DAYS = 3;
+const FINE_PER_DAY = 10;
+const BAN_THRESHOLD = 200;
 
 /* =========================
    GET ALL BORROWS
@@ -21,14 +26,11 @@ export const getAllBorrows = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching borrows:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch borrows"
     });
-
   }
 };
 
@@ -56,14 +58,11 @@ export const getBorrow = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching borrow:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch borrow"
     });
-
   }
 };
 
@@ -85,14 +84,11 @@ export const getUserBorrows = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching user borrows:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch user borrows"
     });
-
   }
 };
 
@@ -119,14 +115,11 @@ export const getOverdueBorrows = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching overdue borrows:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch overdue borrows"
     });
-
   }
 };
 
@@ -155,14 +148,11 @@ export const getDueSoonBorrows = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching due soon borrows:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch due soon borrows"
     });
-
   }
 };
 
@@ -172,88 +162,49 @@ export const getDueSoonBorrows = async (req, res) => {
 ========================= */
 export const createBorrow = async (req, res) => {
   try {
+
     const { user, book } = req.body;
 
-    console.log("BORROW REQUEST BODY:", req.body);
-
-    /* =========================
-       STEP 1: VALIDATION
-    ========================= */
     if (!user || !book) {
       return res.status(400).json({
         success: false,
-        step: "VALIDATION",
-        message: "User and Book are required",
-        received: req.body
+        message: "User and Book are required"
       });
     }
 
-    /* =========================
-       STEP 2: FIND USER
-    ========================= */
     const existingUser = await User.findById(user);
-
-    console.log("USER FOUND:", existingUser);
-
     if (!existingUser) {
       return res.status(404).json({
         success: false,
-        step: "USER_LOOKUP",
-        message: "User not found",
-        userId: user
+        message: "User not found"
       });
     }
 
     /* =========================
-       STEP 3: BAN CHECK
+       BAN CHECK (SYNC WITH CRON)
     ========================= */
-    if (
-      existingUser.banned === true ||
-      existingUser.banned === "true" ||
-      existingUser.banned === 1
-    ) {
+    if (existingUser.banned) {
       return res.status(403).json({
         success: false,
-        step: "BAN_CHECK",
-        message: "User is banned from borrowing books",
-        userId: user
+        message: "User is banned"
       });
     }
 
-    /* =========================
-       STEP 4: FIND BOOK
-    ========================= */
     const existingBook = await Book.findById(book);
-
-    console.log("BOOK FOUND:", existingBook);
-
     if (!existingBook) {
       return res.status(404).json({
         success: false,
-        step: "BOOK_LOOKUP",
-        message: "Book not found",
-        bookId: book
+        message: "Book not found"
       });
     }
 
-    /* =========================
-       STEP 5: BOOK AVAILABILITY
-    ========================= */
     if (!existingBook.available) {
       return res.status(400).json({
         success: false,
-        step: "BOOK_AVAILABILITY_CHECK",
-        message: "Book is already borrowed",
-        debug: {
-          bookId: book,
-          available: existingBook.available
-        }
+        message: "Book already borrowed"
       });
     }
 
-    /* =========================
-       STEP 6: OVERDUE CHECK
-    ========================= */
     const hasOverdue = await Borrow.findOne({
       user,
       returned: false,
@@ -263,20 +214,12 @@ export const createBorrow = async (req, res) => {
     if (hasOverdue) {
       return res.status(400).json({
         success: false,
-        step: "OVERDUE_CHECK",
-        message: "User has overdue books",
-        debug: {
-          overdueBorrowId: hasOverdue._id,
-          dueDate: hasOverdue.dueDate
-        }
+        message: "User has overdue books"
       });
     }
 
-    /* =========================
-       STEP 7: CREATE BORROW
-    ========================= */
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 3);
+    dueDate.setDate(dueDate.getDate() + BORROW_DAYS);
 
     const newBorrow = new Borrow({
       user,
@@ -288,30 +231,39 @@ export const createBorrow = async (req, res) => {
 
     await Book.findByIdAndUpdate(book, { available: false });
 
-    /* =========================
-       STEP 8: UPDATE USER BORROW HISTORY
-    ========================= */
     await User.findByIdAndUpdate(user, {
-      $push: {
-        borrowHistory: newBorrow._id
-      }
+      $push: { borrowHistory: newBorrow._id }
     });
+
+    /* =========================
+       SAFE NOTIFICATION (NO DUPLICATE)
+    ========================= */
+    const existingNotif = await Notification.findOne({
+      userId: user,
+      type: "borrow",
+      createdAt: { $gte: new Date(Date.now() - 60 * 1000) } // 1 min cooldown
+    });
+
+    if (!existingNotif) {
+      await Notification.create({
+        userId: user,
+        title: "Book Borrowed",
+        message: `You borrowed "${existingBook.title}" successfully.`,
+        type: "borrow"
+      });
+    }
 
     return res.status(201).json({
       success: true,
-      step: "SUCCESS",
       message: "Borrow created successfully",
       borrow: newBorrow
     });
 
   } catch (error) {
     console.error("Error creating borrow:", error);
-
     return res.status(500).json({
       success: false,
-      step: "SERVER_ERROR",
-      message: error.message,
-      stack: error.stack
+      message: error.message
     });
   }
 };
@@ -322,65 +274,32 @@ export const createBorrow = async (req, res) => {
 ========================= */
 export const returnBookByBookId = async (req, res) => {
   try {
+
     const { bookId } = req.params;
 
-    console.log("RETURN REQUEST FOR BOOK:", bookId);
-
-    if (!bookId) {
-      return res.status(400).json({
-        success: false,
-        step: "VALIDATION",
-        message: "bookId is required"
-      });
-    }
-
-    /* =========================
-       FIND ACTIVE BORROW
-    ========================= */
     const borrow = await Borrow.findOne({
       book: bookId,
       returned: false
-    })
-      .populate("user", "username")
-      .populate("book", "title available");
-
-    console.log("ACTIVE BORROW FOUND:", borrow);
+    }).populate("user book");
 
     if (!borrow) {
       return res.status(404).json({
         success: false,
-        step: "BORROW_LOOKUP",
-        message: "No active borrow found for this book",
-        debug: {
-          bookId
-        }
+        message: "No active borrow found"
       });
     }
 
-    /* =========================
-       ALREADY RETURNED SAFETY
-    ========================= */
-    if (borrow.returned === true) {
-      return res.status(400).json({
-        success: false,
-        step: "RETURN_STATE",
-        message: "This borrow record is already returned",
-        borrowId: borrow._id
-      });
-    }
-
-    /* =========================
-       FINE CALCULATION
-    ========================= */
     const today = new Date();
+
     let fine = 0;
+    let lateDays = 0;
 
     if (today > borrow.dueDate) {
-      const lateDays = Math.ceil(
+      lateDays = Math.ceil(
         (today - borrow.dueDate) / (1000 * 60 * 60 * 24)
       );
 
-      fine = lateDays * 10;
+      fine = lateDays * FINE_PER_DAY;
     }
 
     /* =========================
@@ -388,43 +307,87 @@ export const returnBookByBookId = async (req, res) => {
     ========================= */
     borrow.returned = true;
     borrow.returnDate = today;
-    borrow.status = today > borrow.dueDate ? "overdue" : "returned";
+    borrow.status = fine > 0 ? "overdue" : "returned";
     borrow.fine = fine;
 
     await borrow.save();
 
     /* =========================
-       UPDATE BOOK SAFELY
+       PENALTY LOG (FIXED FIELD)
     ========================= */
-    await Book.findOneAndUpdate(
-      { _id: bookId },
-      { available: true }
-    );
+    if (fine > 0) {
+      await PenaltyLog.create({
+        user: borrow.user._id,
+        borrow: borrow._id,
+        overdueDays: lateDays,
+        fineApplied: fine,
+        reason: "Late return"
+      });
+    }
+
+    await Book.findByIdAndUpdate(bookId, { available: true });
 
     /* =========================
-       RESPONSE
+       SYNC USER FINE (CRON SOURCE OF TRUTH)
     ========================= */
+    const userBorrows = await Borrow.find({ user: borrow.user._id });
+
+    const totalFine = userBorrows.reduce(
+      (sum, b) => sum + (b.fine || 0),
+      0
+    );
+
+    const user = await User.findById(borrow.user._id);
+
+    user.fineAmount = totalFine;
+
+    if (totalFine >= BAN_THRESHOLD) {
+      user.banned = true;
+    }
+
+    await user.save();
+
+    /* =========================
+       NOTIFICATION (NO DUPLICATES)
+    ========================= */
+    const notifKey = `${borrow._id}-${fine > 0 ? "penalty" : "return"}`;
+
+    const exists = await Notification.findOne({
+      userId: user._id,
+      type: fine > 0 ? "penalty" : "return",
+      message: { $regex: notifKey, $options: "i" }
+    });
+
+    if (!exists) {
+      await Notification.create({
+        userId: user._id,
+        title: fine > 0 ? "Penalty Applied" : "Book Returned",
+        message: fine > 0
+          ? `You returned "${borrow.book.title}" with ₱${fine} penalty. (${notifKey})`
+          : `You returned "${borrow.book.title}" successfully. (${notifKey})`,
+        type: fine > 0 ? "penalty" : "return"
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      step: "SUCCESS",
-      message: "Book returned successfully",
       fine,
       borrow
     });
 
   } catch (error) {
-    console.error("Return by book error:", error);
-
+    console.error("Return error:", error);
     return res.status(500).json({
       success: false,
-      step: "SERVER_ERROR",
-      message: error.message,
-      stack: error.stack
+      message: error.message
     });
   }
 };
 
-/* GET USER OVERDUE BORROWS */
+
+/* =========================
+   USER BORROW FILTERS (UNCHANGED)
+========================= */
 export const getUserOverdueBorrows = async (req, res) => {
   try {
 
@@ -445,18 +408,15 @@ export const getUserOverdueBorrows = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching user overdue borrows:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch user overdue borrows"
     });
-
   }
 };
 
-/* GET USER DUE SOON BORROWS */
+
 export const getUserDueSoonBorrows = async (req, res) => {
   try {
 
@@ -479,13 +439,10 @@ export const getUserDueSoonBorrows = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error("Error fetching user due soon borrows:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch user due soon borrows"
     });
-
   }
 };

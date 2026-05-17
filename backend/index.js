@@ -13,14 +13,14 @@ import { startRFIDScanner } from "./middleware/rfidScanning.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import statsRoutes from "./routes/statsRoutes.js";
-import penaltyCron from "./cron/penaltyCron.js";
+import penaltyCron from "./utils/penaltyCron.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import penaltyRoutes from "./routes/penaltyRoutes.js";
 
 import http from "http";
 import { initSocket } from "./middleware/socket.js";
 
 dotenv.config();
-
 const app = express();
 const server = http.createServer(app);
 const backend_port = process.env.BACKEND_PORT || 5000;
@@ -46,6 +46,7 @@ app.use("/api/borrow", borrowRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/penalties", penaltyRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 
