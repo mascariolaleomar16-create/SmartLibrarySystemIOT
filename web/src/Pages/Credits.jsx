@@ -27,7 +27,7 @@ export default function Credits() {
     {
       name: "Liam Russel Bustos",
       role: "Hardware Engineer / IoT Developer",
-      image: "",
+      image: "images/liam.jpeg",
       desc:
         "Developed and implemented the Arduino-based RFID scanner and ensured hardware-software integration for accurate scanning and communication between devices and system database.",
     },
@@ -145,10 +145,6 @@ export default function Credits() {
           </div>
         ))}
 
-      </div>
-
-      <div className="text-center mt-12 text-sm text-gray-500">
-        BookFlow Smart Library System | BSIT-3A Project (2025–2026)
       </div>
 
     </div>
