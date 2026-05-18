@@ -4,7 +4,7 @@ export default function Credits() {
   const leader = {
     name: "John Kenneth D. Dignos",
     role: "Project Leader / Lead Developer",
-    image: "", //ex: images/users.png
+    image: "images/dignos.jpg", //ex: images/users.png
     desc:
       "Served as the overall project leader and primary developer responsible for system architecture, full-stack development (MERN), RFID integration, and overall implementation of the Smart Library System with IoT. Led the technical direction of the project and coordinated tasks among group members to ensure successful completion.",
   };
@@ -13,14 +13,14 @@ export default function Credits() {
     {
       name: "Leomar Mascariola",
       role: "Resource Provider / Technical Support",
-      image: "",
+      image: "images/leomar.jpg",
       desc:
         "Provided essential resources such as the development laptop and technical support. Assisted during testing, debugging, and system evaluation to ensure smooth development workflow.",
     },
     {
       name: "Sophia Mae Valle",
       role: "Financial Manager / Procurement",
-      image: "",
+      image: "images/sophia.jpeg",
       desc:
         "Handled budgeting, financial tracking, and procurement of materials and components needed for both hardware and software development of the system.",
     },
@@ -34,21 +34,21 @@ export default function Credits() {
     {
       name: "King Mojado",
       role: "Hardware Fabrication Specialist",
-      image: "",
+      image: "images/king.jpg",
       desc:
         "Designed and assembled the hardware enclosure, ensuring proper placement and protection of electronic components.",
     },
     {
       name: "Zydrix Navarro",
       role: "Hardware Fabrication Assistant",
-      image: "",
+      image: "images/navarro.jpg",
       desc:
         "Assisted in constructing the physical enclosure and contributed to assembly and structural adjustments of hardware components.",
     },
     {
       name: "Ressa May Labajo",
       role: "Documentation & Admin Support",
-      image: "",
+      image: "images/ressa.jpg",
       desc:
         "Managed project documentation, reports, and formal write-ups. Assisted in administrative and financial documentation requirements.",
     },
