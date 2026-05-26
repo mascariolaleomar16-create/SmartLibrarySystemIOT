@@ -36,25 +36,9 @@ export default function Sidebar() {
 
       <hr className="border-white/20 mb-2" />
 
-      {/* GENERAL LINKS */}
+      {/* DASHBOARD */}
       <NavLink to="/dashboard" className={linkClass}>
         Dashboard
-      </NavLink>
-
-      <NavLink to="/dashboard/rfidscan" className={linkClass}>
-        RFID Scanner
-      </NavLink>
-
-      <NavLink to="/dashboard/catalogue" className={linkClass}>
-        Library Catalogue
-      </NavLink>
-
-      <NavLink to="/dashboard/borrowed-books" className={linkClass}>
-        Borrowed Books
-      </NavLink>
-
-      <NavLink to="/dashboard/notifications" className={linkClass}>
-        Notifications
       </NavLink>
 
       {/* ADMIN SECTION */}
@@ -82,11 +66,26 @@ export default function Sidebar() {
             Manage Users
           </NavLink>
 
-          <NavLink to="/dashboard/penalty-history" className={linkClass}>
-            Penalty History
-          </NavLink>
+          <hr className="my-3 border-white/20" />
         </>
       )}
+
+      {/* GENERAL LINKS */}
+      <NavLink to="/dashboard/rfidscan" className={linkClass}>
+        RFID Scanner
+      </NavLink>
+
+      <NavLink to="/dashboard/catalogue" className={linkClass}>
+        Library Catalogue
+      </NavLink>
+
+      <NavLink to="/dashboard/borrowed-books" className={linkClass}>
+        Borrowed Books
+      </NavLink>
+
+      <NavLink to="/dashboard/notifications" className={linkClass}>
+        Notifications
+      </NavLink>
     </aside>
   );
 }

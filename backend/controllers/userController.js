@@ -181,9 +181,45 @@ const unbanUser = async (req, res) => {
   }
 };
 
+const clearFine = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.fineAmount = 0;
+
+    if (user.banned) {
+      user.banned = false;
+      user.banExpires = null;
+    }
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Penalty cleared successfully",
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to clear penalty",
+    });
+  }
+};
+
 export {
   getAllUsers,
   getUserById,
   banUser,
   unbanUser,
+  clearFine,
 }

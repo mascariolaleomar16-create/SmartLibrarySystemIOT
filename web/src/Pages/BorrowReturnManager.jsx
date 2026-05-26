@@ -77,25 +77,31 @@ export default function BorrowReturnManager() {
     }
   };
 
-  const handleBorrow = async () => {
-    if (!book?._id) return showError("No book selected");
-    if (!selectedUser) return showError("Please select a user");
+const handleBorrow = async () => {
+  if (!book?._id) return showError("No book selected");
+  if (!selectedUser) return showError("Please select a user");
 
-    try {
-      await axios.post(`${API_URL}/borrow/`, {
-        user: selectedUser,
-        book: book._id,
-      });
+  try {
+    const res = await axios.post(`${API_URL}/borrow/`, {
+      user: selectedUser,
+      book: book._id,
+    });
 
-      showSuccess("Book borrowed successfully");
+    showSuccess(res.data?.message || "Book borrowed successfully");
 
-      setBook(null);
-      setRfid("");
-      setSelectedUser("");
-    } catch (err) {
-      showError(err.response?.data?.message || "Borrow failed");
-    }
-  };
+    setBook(null);
+    setRfid("");
+    setSelectedUser("");
+
+  } catch (err) {
+    const message =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Borrow failed";
+
+    showError(message);
+  }
+};
 
   const handleReturn = async () => {
     if (!book?._id) return showError("No book scanned");

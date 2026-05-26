@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import PenaltyHistorySection from "../Components/PenaltyHistorySection.jsx";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -68,6 +69,19 @@ export default function ManageUsers() {
     }
   };
 
+  const clearFine = async (id) => {
+    try {
+      await axios.patch(`${API_URL}/users/${id}/clear-fine`);
+
+      await fetchUsers();
+
+      const updated = await axios.get(`${API_URL}/users/${id}`);
+      setUserDetail(updated.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="space-y-5">
 
@@ -96,10 +110,10 @@ export default function ManageUsers() {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Status</th>
-                <th>Total</th>
+                <th>Book Borrowed</th>
                 <th>Active</th>
                 <th>Overdue</th>
-                <th>Fines</th>
+                <th>Current Fine</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -130,6 +144,7 @@ export default function ManageUsers() {
                   </td>
 
                   <td>{u.stats?.totalBorrowed || 0}</td>
+
                   <td>{u.stats?.activeBorrowed || 0}</td>
 
                   <td>
@@ -144,7 +159,9 @@ export default function ManageUsers() {
                     </span>
                   </td>
 
-                  <td className="text-blue-700">₱{u.stats?.totalFine || 0}</td>
+                  <td className="text-red-600 font-semibold">
+                    ₱{u.fineAmount || 0}
+                  </td>
 
                   <td>
                     <button
@@ -167,6 +184,9 @@ export default function ManageUsers() {
         )}
       </div>
 
+      {/* PENALTY HISTORY (optional global view) */}
+      <PenaltyHistorySection />
+
       {/* DRAWER */}
       {drawerOpen && userDetail && (
         <div className="fixed inset-0 bg-black/40 flex justify-end z-50">
@@ -188,25 +208,65 @@ export default function ManageUsers() {
 
             <div className="space-y-1 border-b pb-3">
               <p className="font-bold">{userDetail.fullName}</p>
-              <p className="text-sm text-gray-600">{userDetail.email}</p>
+              <p className="text-sm text-gray-600">
+                {userDetail.email}
+              </p>
 
               <p className="text-xs">
                 Status:{" "}
-                <span className={userDetail.banned ? "text-red-600" : "text-blue-600"}>
+                <span
+                  className={
+                    userDetail.banned
+                      ? "text-red-600"
+                      : "text-blue-600"
+                  }
+                >
                   {userDetail.banned ? "Banned" : "Active"}
                 </span>
               </p>
             </div>
 
+            {/* STATS */}
             <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
 
-              <Stat label="Total Borrowed" value={userDetail.stats?.totalBorrowed} />
-              <Stat label="Active" value={userDetail.stats?.activeBorrowed} />
-              <Stat label="Overdue" value={userDetail.stats?.overdue} />
-              <Stat label="Fines" value={`₱${userDetail.stats?.totalFine}`} />
+              <Stat
+                label="Total Borrowed"
+                value={userDetail.stats?.totalBorrowed}
+              />
+
+              <Stat
+                label="Active"
+                value={userDetail.stats?.activeBorrowed}
+              />
+
+              <Stat
+                label="Overdue"
+                value={userDetail.stats?.overdue}
+              />
+
+              <Stat
+                label="Accumulated Fines"
+                value={`₱${userDetail.stats?.totalFine || 0}`}
+              />
 
             </div>
 
+            {/* CLEAR FINE */}
+            <div className="mt-4">
+              <button
+                onClick={() => clearFine(userDetail._id)}
+                disabled={userDetail.fineAmount <= 0}
+                className={`w-full py-2 rounded-lg text-white font-medium transition ${
+                  userDetail.fineAmount > 0
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-gray-300 cursor-not-allowed"
+                }`}
+              >
+                Clear Penalty / Mark as Paid
+              </button>
+            </div>
+
+            {/* BORROW HISTORY */}
             <div className="mt-5">
               <h3 className="font-semibold mb-2 text-blue-700">
                 Borrow History
@@ -215,12 +275,16 @@ export default function ManageUsers() {
               <div className="space-y-2">
 
                 {userDetail.borrowHistory?.length === 0 && (
-                  <p className="text-sm text-gray-400">No history yet</p>
+                  <p className="text-sm text-gray-400">
+                    No history yet
+                  </p>
                 )}
 
                 {userDetail.borrowHistory?.map((b) => {
                   const isReturned = b.returned;
-                  const isOverdue = !b.returned && new Date(b.dueDate) < new Date();
+                  const isOverdue =
+                    !b.returned &&
+                    new Date(b.dueDate) < new Date();
 
                   return (
                     <div
@@ -229,7 +293,10 @@ export default function ManageUsers() {
                     >
 
                       <img
-                        src={b.book?.image?.url || "/default-book.jpg"}
+                        src={
+                          b.book?.image?.url ||
+                          "/default-book.jpg"
+                        }
                         className="w-12 h-16 object-cover rounded"
                         alt={b.book?.title}
                       />
@@ -241,7 +308,10 @@ export default function ManageUsers() {
                         </p>
 
                         <p className="text-xs text-gray-500">
-                          Due: {new Date(b.dueDate).toLocaleDateString()}
+                          Due:{" "}
+                          {new Date(
+                            b.dueDate
+                          ).toLocaleDateString()}
                         </p>
 
                         <div className="mt-1">

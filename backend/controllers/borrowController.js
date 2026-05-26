@@ -162,7 +162,6 @@ export const getDueSoonBorrows = async (req, res) => {
 ========================= */
 export const createBorrow = async (req, res) => {
   try {
-
     const { user, book } = req.body;
 
     if (!user || !book) {
@@ -181,7 +180,7 @@ export const createBorrow = async (req, res) => {
     }
 
     /* =========================
-       BAN CHECK (SYNC WITH CRON)
+       BAN CHECK
     ========================= */
     if (existingUser.banned) {
       return res.status(403).json({
@@ -205,6 +204,9 @@ export const createBorrow = async (req, res) => {
       });
     }
 
+    /* =========================
+       OVERDUE CHECK
+    ========================= */
     const hasOverdue = await Borrow.findOne({
       user,
       returned: false,
@@ -218,6 +220,24 @@ export const createBorrow = async (req, res) => {
       });
     }
 
+    /* =========================
+       ACTIVE BORROW LIMIT (MAX 3)
+    ========================= */
+    const activeBorrowsCount = await Borrow.countDocuments({
+      user,
+      returned: false
+    });
+
+    if (activeBorrowsCount >= 3) {
+      return res.status(400).json({
+        success: false,
+        message: "Borrow limit reached. You can only borrow up to 3 books at a time."
+      });
+    }
+
+    /* =========================
+       CREATE BORROW
+    ========================= */
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + BORROW_DAYS);
 
@@ -236,12 +256,12 @@ export const createBorrow = async (req, res) => {
     });
 
     /* =========================
-       SAFE NOTIFICATION (NO DUPLICATE)
+       NOTIFICATION (SAFE)
     ========================= */
     const existingNotif = await Notification.findOne({
       userId: user,
       type: "borrow",
-      createdAt: { $gte: new Date(Date.now() - 60 * 1000) } // 1 min cooldown
+      createdAt: { $gte: new Date(Date.now() - 60 * 1000) }
     });
 
     if (!existingNotif) {
